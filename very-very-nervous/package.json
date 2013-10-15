@@ -5,7 +5,8 @@
     "bugs": "http://github.com/colinbdclark/artwork/issues",
     "homepage": "http://colinclark.org",
     "dependencies": {
-        "node-image": "git://github.com/luismreis/node-image.git"
+        "node-image": "git://github.com/luismreis/node-image.git",
+        "flocking": "git://github.com/colinbdclark/node-flocking.git#raspberry-pi-alsa"
     },
     "licenses": [
         {
