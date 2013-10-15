@@ -1,6 +1,7 @@
 var fs = require("fs"),
     exec = require("child_process").exec,
-    FreeImage = require("node-image").Image;
+    FreeImage = require("node-image").Image
+    flock = require("flocking");
 
 var w = 640,
     h = 480,
@@ -10,6 +11,15 @@ var w = 640,
     cmd = "streamer -s " + w + "x" + h + " -f pgm -o " + filename,
     earlierImg,
     laterImg;
+
+var synth = flock.synth({
+    synthDef: {
+        id: "carrier",
+        ugen: "flock.ugen.sinOsc",
+        freq: 220,
+        mul: 0.5
+    }
+});
 
 function snap() {
     exec(cmd, function (error) {
@@ -29,7 +39,8 @@ function snap() {
             laterImg = FreeImage.loadFromMemory(fileData);
             if (earlierImg && laterImg) {
                 var whitePixels = trackMovementGrey(earlierImg.buffer, laterImg.buffer, threshold);
-                console.log("Movement factor:", whitePixels / numPixels);
+                //console.log("Movement factor:", whitePixels / numPixels);
+                synth.set("carrier.freq", ((whitePixels / numPixels) * 11025) + 60);
             }
         });
     });
@@ -75,5 +86,15 @@ function trackMovementGrey(earlier, later, threshold) {
 
     return whitePixels;
 }
+
+
+flock.init({
+    bufferSize: 128,
+    rates: {
+        audio: 22050
+    }
+});
+
+synth.play();
 
 snap();
