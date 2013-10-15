@@ -20,16 +20,15 @@
         <script src="../../flocking/flocking/flocking-parser.js"></script>
         <script src="../../flocking/flocking/flocking-ugens.js"></script>
         
+        <script src="webcam.js"></script>
         <script src="very-very-nervous.js"></script>
     </head>
     <body>
-        <canvas width="1080" height="720" />
-
-        <img id="1" src="images/5.jpg" />
-        <img id="2" src="images/6.jpg" />
+        <canvas width="640" height="480"></canvas>
+        <video id="webcam" width="640" height="480"></video>
         
         <script>
-            colin.veryVery("body");
+            window.veryVery = colin.veryVery("body");
         </script>
     </body>
 </html>

@@ -6,6 +6,12 @@
     fluid.defaults("colin.veryVery", {
         gradeNames: ["fluid.viewComponent", "autoInit"],
         
+        members: {
+            snapshots: [undefined, undefined]
+        },
+        
+        trackingInterval: 5,
+        
         filterSpecs: [
             {
                 funcName: "colin.veryVery.subtract"
@@ -21,14 +27,27 @@
             }
         ],
         
+        components: {
+            webcam: {
+                type: "colin.webcam",
+                container: "{that}.dom.webcam"
+            },
+            
+            scheduler: {
+                type: "flock.scheduler.async"
+            }
+        },
+        
         listeners: {
             onCreate: [
                 {
-                    funcName: "colin.veryVery.findMovement",
+                    funcName: "colin.veryVery.scheduleMovementLogger",
                     args: [
+                        "{that}.options.trackingInterval",
+                        "{that}.scheduler",
+                        "{that}.webcam",
+                        "{that}.snapshots",
                         "{that}.dom.canvas.0",
-                        "{that}.dom.earlier.0",
-                        "{that}.dom.later.0",
                         "{that}.options.filterSpecs"
                     ]
                 }
@@ -37,8 +56,7 @@
         
         selectors: {
             canvas: "canvas",
-            earlier: "#1",
-            later: "#2"
+            webcam: "#webcam"
         }
     });
     
@@ -112,7 +130,6 @@
             val;
         
         for (i = 0; i < outData.length; i += 4) {
-            // TODO: Luminance.
             pixelSum = 0;
             for (j = i; j < i + 3; j++) {
                 pixelSum += outData[j];
@@ -121,9 +138,9 @@
             val = pixelSum / 3;
             val = val >= threshold ? 255 : 0;
             
-            outData[i] = val;
-            outData[i + 1] = val;
-            outData[i + 2] = val;
+            for (j = i; j < i + 3; j++) {
+                outData[j] = val;
+            }
         }
         
         return workingData;
@@ -143,9 +160,8 @@
         return sum / numPixels;
     };
     
-    colin.veryVery.process = function (ctx, w, h, images, filterSpecs) {
-        var imageData = colin.veryVery.dataForImages(ctx, w, h, images),
-            workingData = imageData[0],
+    colin.veryVery.process = function (ctx, w, h, imageData, filterSpecs) {
+        var workingData = imageData[0],
             parameters,
             i,
             filterSpec;
@@ -159,14 +175,28 @@
         
         return workingData;
     };
-    
-    colin.veryVery.findMovement = function (canvas, earlier, later, filterSpecs) {
-        var ctx = canvas.getContext("2d"),
-            w = canvas.width,
-            h = canvas.height,
-            workingData = colin.veryVery.process(ctx, w, h, [earlier, later], filterSpecs)
-        
-        console.log("Movement factor:", colin.veryVery.differenceFactor(workingData));
-    };
 
+    colin.veryVery.scheduleMovementLogger = function (interval, scheduler, webcam, snapshots, canvas, filterSpecs) {
+        var secs = 1 / interval,
+            ctx = canvas.getContext("2d"),
+            w = canvas.width,
+            h = canvas.height;
+        
+        scheduler.repeat(secs, function () {
+            colin.veryVery.logWebcamMovement(webcam, snapshots, ctx, w, h, filterSpecs);
+        });
+    };
+    
+    colin.veryVery.logWebcamMovement = function (webcam, snapshots, ctx, w, h, filterSpecs) {
+        var workingData;
+            
+        snapshots[0] = snapshots[1];
+        snapshots[1] = webcam.snapshot(ctx, w, h);
+        
+        if (snapshots[0] && snapshots[1]) {
+            workingData = colin.veryVery.process(ctx, w, h, snapshots, filterSpecs);
+            console.log(colin.veryVery.differenceFactor(workingData));
+        }
+    };
+    
 }());
