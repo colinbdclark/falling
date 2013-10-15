@@ -12,6 +12,8 @@
         
         trackingInterval: 5,
         
+        binarizeThreshold: 0.25,
+        
         filterSpecs: [
             {
                 funcName: "colin.veryVery.subtract"
@@ -48,7 +50,7 @@
                         "{that}.webcam",
                         "{that}.snapshots",
                         "{that}.dom.canvas.0",
-                        "{that}.options.filterSpecs"
+                        "{that}.options.binarizeThreshold"
                     ]
                 }
             ]
@@ -176,25 +178,64 @@
         return workingData;
     };
 
-    colin.veryVery.scheduleMovementLogger = function (interval, scheduler, webcam, snapshots, canvas, filterSpecs) {
+    // Note: this was cut and pasted from the above functions for performance reasons.
+    colin.veryVery.subtractAndBinarize = function (earlier, later, working, threshold) {
+        var oneData = earlier.data,
+            twoData = later.data,
+            outData = working.data,
+            i,
+            ri, gi, bi,
+            r, g, b,
+            luminance,
+            binarized,
+            j;
+
+        for (i = 0; i < outData.length; i += 4) {
+            ri = i;
+            gi = i + 1;
+            bi = i + 2;
+            
+            // Subtract.
+            r = oneData[ri] - twoData[ri];
+            g = oneData[gi] - twoData[gi];
+            b = oneData[bi] - twoData[bi];
+        
+            // Convert to grayscale.
+            luminance = (r * 0.2126 + g * 0.7152 + b * 0.0722);
+            
+            // Binarize.
+            binarized = luminance >= threshold ? 255 : 0;
+            
+            // Output the binarized value for each channel.
+            outData[ri] = binarized;
+            outData[gi] = binarized;
+            outData[bi] = binarized;
+        }
+        
+        return working;
+    };
+    
+    colin.veryVery.scheduleMovementLogger = function (interval, scheduler, webcam, snapshots, canvas, binarizeThreshold) {
         var secs = 1 / interval,
             ctx = canvas.getContext("2d"),
             w = canvas.width,
-            h = canvas.height;
+            h = canvas.height,
+            scaledThreshold = Math.round(binarizeThreshold * 255);
         
         scheduler.repeat(secs, function () {
-            colin.veryVery.logWebcamMovement(webcam, snapshots, ctx, w, h, filterSpecs);
+            colin.veryVery.logWebcamMovement(webcam, snapshots, ctx, w, h, scaledThreshold);
         });
     };
     
-    colin.veryVery.logWebcamMovement = function (webcam, snapshots, ctx, w, h, filterSpecs) {
-        var workingData;
-            
-        snapshots[0] = snapshots[1];
-        snapshots[1] = webcam.snapshot(ctx, w, h);
+    colin.veryVery.logWebcamMovement = function (webcam, snapshots, ctx, w, h, threshold) {
+        var earlier = snapshots[0] = snapshots[1],
+            later = snapshots[1] = webcam.snapshot(ctx, w, h),
+            workingData;
         
-        if (snapshots[0] && snapshots[1]) {
-            workingData = colin.veryVery.process(ctx, w, h, snapshots, filterSpecs);
+        if (earlier && later) {
+            workingData = colin.veryVery.subtractAndBinarize(earlier, later, earlier, threshold);
+            ctx.clearRect(0, 0, w, h);
+            ctx.putImageData(workingData, 0, 0);
             console.log(colin.veryVery.differenceFactor(workingData));
         }
     };
