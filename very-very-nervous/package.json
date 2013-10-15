@@ -1,0 +1,22 @@
+{
+    "name": "very",
+    "version": "0.1.0",
+    "author": "Colin Clark",
+    "bugs": "http://github.com/colinbdclark/artwork/issues",
+    "homepage": "http://colinclark.org",
+    "dependencies": {
+        "node-image": "git://github.com/luismreis/node-image.git"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "http://opensource.org/licenses/MIT"
+        }
+    ],
+
+    "repository": "git://github.com/colinbdclark/artwork.git",
+    "main": "index.js",
+    "engines": {
+        "node" : "0.10.x"
+    }
+}
