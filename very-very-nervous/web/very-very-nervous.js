@@ -10,7 +10,7 @@
             snapshots: [undefined, undefined]
         },
         
-        trackingInterval: 1.25,
+        trackingInterval: 1,
         
         binarizeThreshold: 0.25,
         
