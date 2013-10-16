@@ -81,7 +81,7 @@
         }
     });
     
-    colin.veryVery.motionSource.udp.scaleValue = function (rawMotionMessage, onMotion) {
+    colin.veryVery.motionSource.udp.scaleValue = function (rawMotionMessage, remoteInfo, onMotion) {
         var value = rawMotionMessage.readFloatLE(0);
         value = (value * 11025) + 60;
         
