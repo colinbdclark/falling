@@ -4,17 +4,17 @@
     var fluid = require("infusion"),
         flock = fluid.require("flocking"),
         colin = fluid.registerNamespace("colin");    
-            
+
+    flock.init({
+        bufferSize: 128,
+        rates: {
+            audio: 22050
+        }
+    });
+          
     fluid.defaults("colin.veryVery.movementResponder", {
         gradeNames: ["fluid.eventedComponent", "autoInit"],
         
-        audioEnvironment: {
-            bufferSize: 128,
-            rates: {
-                audio: 22050
-            }
-        },
-
         components: {
             synth: {
                 type: "flock.synth",
@@ -43,10 +43,10 @@
         
         listeners: {
             onCreate: [
-                {
+                /*{
                     funcName: "flock.init",
                     args: ["{that}.options.audioEnvironment"]
-                },
+                },*/
                 {
                     funcName: "{that}.synth.play"
                 }
