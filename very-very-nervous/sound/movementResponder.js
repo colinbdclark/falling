@@ -69,7 +69,7 @@
                         
                         onMessage: {
                             funcName: "colin.veryVery.motionSource.udp.scaleValue",
-                            args: ["{that}", "{arguments}.0", "{arguments}.1"]
+                            args: ["{arguments}.0", "{arguments}.1", "{udp}.events.onMotion.fire"]
                         }
                     }
                 }
@@ -81,12 +81,12 @@
         }
     });
     
-    colin.veryVery.motionSource.udp.scaleValue = function (that, rawMotionMessage, remoteInfo) {
+    colin.veryVery.motionSource.udp.scaleValue = function (that, rawMotionMessage, onMotion) {
         var value = rawMotionMessage.readFloatLE(0);
         value = (value * 11025) + 60;
         
         console.log("Received synth value:", value);
-        that.events.onMotion.fire(value);
+        onMotion(value);
     };
     
 }());
