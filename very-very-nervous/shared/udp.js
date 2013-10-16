@@ -23,6 +23,7 @@
         }
     });
     
+    
     /**********
      * Client *
      **********/
@@ -33,14 +34,6 @@
         maxMessageLength: 4,
     
         members: {
-            socket: {
-                expander: {
-                    "this": dgram,
-                    method: "createSocket",
-                    args: ["udp4"]
-                }
-            },
-        
             msgBuffer: {
                 expander: {
                     funcName: "colin.udpClient.createMessageBuffer",
@@ -62,7 +55,13 @@
                     funcName: "colin.udpClient.bindMethods",
                     args: ["{that}"]
                 }
-            ]
+            ],
+            
+            onError: {
+                "this": console,
+                method: "log",
+                args: ["{arguments}.0"]
+            }
         },
     
         events: {
@@ -81,7 +80,8 @@
 
     colin.udpClient.bindMethods = function (that) {
         that.send = function (message) {
-            socket.send(message, 0, message.length, that.options.host, that.options.port, function (err, bytes) {
+            console.log(that.options.host, ":", that.options.port);
+            that.socket.send(message, 0, message.length, that.options.port, that.options.host, function (err, bytes) {
                 if (err) {
                     that.events.onError.fire(err);
                     return;
@@ -92,8 +92,10 @@
         };
     
         that.sendFloat = function (value) {
-            that.buffer.writeFloatLE(value, 0);
-            that.send(that.buffer);
+            var buffer = that.msgBuffer;
+            buffer.writeFloatLE(value, 0);
+            console.log("sending value: ", value);
+            that.send(buffer);
         };
     };
 
@@ -127,7 +129,25 @@
                     method: "bind",
                     args: ["{that}.options.port", "{that}.options.host"]
                 }
-            ]
+            ],
+            
+            onListening: {
+                "this": console,
+                method: "log",
+                args: ["I'm listening!", "{arguments}.0"]
+            },
+            
+            onMessage: {
+                "this": console,
+                method: "log",
+                args: ["Got message", "{arguments}.0", "{arguments}.1"]
+            }
         }
     });
+    
+    // Monkey patching to preserve Node Buffer objects during Infusion's expansion/merging process.
+    fluid.isPlainObject = function (totest) {
+        var string = Object.prototype.toString.call(totest);
+        return string === "[object Array]" || (string === "[object Object]" && !(totest instanceof Buffer));
+    };
 }());

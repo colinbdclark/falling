@@ -44,7 +44,7 @@
             },
         
             outputter: {
-                type: "colin.veryVery.consoleOutputter"
+                type: "colin.veryVery.udpOutputter"
             }
         },
     
@@ -93,7 +93,6 @@
             
                     that.laterImg = FreeImage.loadFromMemory(fileData);
                     if (that.earlierImg && that.laterImg) {
-                        // TODO: Better parameterization of 
                         var result = that.processor.process(that.earlierImg.buffer, that.laterImg.buffer);
                         that.outputter.output(result / that.numPixels);
                     }
@@ -130,7 +129,7 @@
 
     colin.veryVery.udpOutputter.bindMethods = function (that) {
         that.output = function (value) {
-            that.udpClient.setFloat(value);
+            that.udpClient.sendFloat(value);
         };
     };
 
