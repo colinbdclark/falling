@@ -124,7 +124,7 @@
             onListening: {
                 "this": console,
                 method: "log",
-                args: ["Server listening at", "{arguments}.0", ":", "{arguments.1"]
+                args: ["Server listening at", "{arguments}.0", ":", "{arguments}.1"]
             },
             
             onMessage: {
