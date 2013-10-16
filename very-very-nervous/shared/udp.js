@@ -148,6 +148,7 @@
         
         that.socket.bind(that.options.port);
         
+        console.log(fluid.isPlainObject(that.socket));
         console.log(that.socket.address.address);
         console.log(that.socket.address.port);
     };
@@ -156,6 +157,6 @@
     // Monkey patching to preserve Node Buffer objects during Infusion's expansion/merging process.
     fluid.isPlainObject = function (totest) {
         var string = Object.prototype.toString.call(totest);
-        return string === "[object Array]" || (string === "[object Object]" && !(totest instanceof Buffer));
+        return string === "[object Array]" || (string === "[object Object]" && !(totest instanceof Buffer) && !(totest instanceof Socket));
     };
 }());
