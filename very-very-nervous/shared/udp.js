@@ -124,7 +124,7 @@
             onListening: {
                 "this": console,
                 method: "log",
-                args: ["Server listening at", "{that}.socket.address.address", ":", "{that}.socket.address.port"]
+                args: ["Server listening at", "{arguments}.0", ":", "{arguments.1"]
             },
             
             onMessage: {
@@ -143,20 +143,20 @@
     
     colin.udpServer.bind = function (that) {
         that.socket.on("error", that.events.onError.fire);
-        that.socket.on("listening", that.events.onListening.fire);
+        that.socket.on("listening", function () {
+            var address = that.socket.address();
+            that.events.onListening.fire(address.port, address.address)
+        });
         that.socket.on("message", that.events.onMessage.fire);
         
         that.socket.bind(that.options.port);
-        
-        console.log(fluid.isPlainObject(that.socket));
-        console.log(that.socket.address.address);
-        console.log(that.socket.address.port);
     };
     
     
     // Monkey patching to preserve Node Buffer objects during Infusion's expansion/merging process.
     fluid.isPlainObject = function (totest) {
         var string = Object.prototype.toString.call(totest);
-        return string === "[object Array]" || (string === "[object Object]" && !(totest instanceof Buffer) && !(totest instanceof Socket));
+        return string === "[object Array]" || 
+            (string === "[object Object]" && !(totest instanceof Buffer) && !(totest instanceof dgram.Socket));
     };
 }());
