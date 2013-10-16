@@ -56,7 +56,7 @@
     
     
     fluid.defaults("colin.veryVery.motionSource.udp", {
-        gradeNames: ["fluid.eventedComponent", "fluid.modelComponent", "autoInit"],
+        gradeNames: ["fluid.eventedComponent", "autoInit"],
         
         components: {
             udpServer: {
@@ -69,7 +69,7 @@
                         
                         onMessage: {
                             funcName: "colin.veryVery.motionSource.udp.scaleValue",
-                            args: ["{arguments}.0", "{arguments}.1", "{that}.events.onMotion.fire"]
+                            args: ["{that}", "{arguments}.0", "{arguments}.1"]
                         }
                     }
                 }
@@ -81,12 +81,12 @@
         }
     });
     
-    colin.veryVery.motionSource.udp.scaleValue = function (rawMotionMessage, remoteInfo, onMotion) {
+    colin.veryVery.motionSource.udp.scaleValue = function (that, rawMotionMessage, remoteInfo) {
         var value = rawMotionMessage.readFloatLE(0);
         value = (value * 11025) + 60;
         
         console.log("Received synth value:", value);
-        onMotion(value);
+        that.events.onMotion.fire(value);
     };
     
 }());
