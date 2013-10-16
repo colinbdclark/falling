@@ -82,7 +82,7 @@
     });
     
     colin.veryVery.motionSource.udp.scaleValue = function (rawMotionMessage, onMotion) {
-        var value = rawMotionMessage.readFloat32LE(0);
+        var value = rawMotionMessage.readFloatLE(0);
         value = (value * 11025) + 60;
         
         console.log("Received synth value:", value);
