@@ -4,7 +4,7 @@
     var fluid = require("infusion"),
         flock = fluid.require("flocking"),
         colin = fluid.registerNamespace("colin");    
-        
+            
     fluid.defaults("colin.veryVery.movementResponder", {
         gradeNames: ["fluid.eventedComponent", "autoInit"],
         
@@ -33,7 +33,7 @@
                 options: {
                     listeners: {
                         onMotion: {
-                            funcName: "{that}.synth.set",
+                            funcName: "{synth}.set",
                             args: ["carrier.freq", "{arguments}.0"]
                         }
                     }
