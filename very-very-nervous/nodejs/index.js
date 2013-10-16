@@ -1,14 +1,16 @@
+"use strict";
+
 var fs = require("fs"),
     exec = require("child_process").exec,
-    FreeImage = require("node-image").Image
+    FreeImage = require("node-image").Image,
     flock = require("flocking");
 
 var w = 640,
     h = 480,
     numPixels = w * h,
-    threshold = Math.round(0.25 * 255),
+    threshold = Math.round(0.1 * 255),
     filename = "images/very-very-snapshot.pgm",
-    cmd = "streamer -s " + w + "x" + h + " -f pgm -o " + filename,
+    cmd = "streamer -q -s " + w + "x" + h + " -f pgm -o " + filename,
     earlierImg,
     laterImg;
 
@@ -27,7 +29,7 @@ function snap() {
             console.log("Error capturing snapshot.", error);
         }
         
-        laterBuf = fs.readFile(filename, function (err, fileData) {
+        fs.readFile(filename, function (err, fileData) {
             if (err) {
                 throw err;
             }
