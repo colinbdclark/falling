@@ -109,41 +109,46 @@
 
         events: {
             onListening: null,
-            onMessage: null
+            onMessage: null,
+            onError: null
         },
         
         listeners: {
             onCreate: [
                 {
-                    "this": "{that}.socket",
-                    method: "on",
-                    args: ["listening", "{that}.events.onListening.fire"]
-                },
-                {
-                    "this": "{that}.socket",
-                    method: "on",
-                    args: ["message", "{that}.events.onMessage.fire"]
-                },
-                {
-                    "this": "{that}.socket",
-                    method: "bind",
-                    args: ["{that}.options.port", "{that}.options.host"]
+                    funcName: "colin.udpServer.bind",
+                    args: ["{that}"]
                 }
             ],
             
             onListening: {
                 "this": console,
                 method: "log",
-                args: ["I'm listening!", "{arguments}.0"]
+                args: ["Server listening at", "{that}.socket.address.address", ":", "{that}.socket.address.port"]
             },
             
             onMessage: {
                 "this": console,
                 method: "log",
                 args: ["Got message", "{arguments}.0", "{arguments}.1"]
+            },
+            
+            onError: {
+                "this": console,
+                method: "log",
+                args: ["{arguments}.0"]
             }
         }
     });
+    
+    colin.udpServer.bind = function (that) {
+        that.socket.on("error", that.events.onError.fire);
+        that.socket.on("listening", that.events.onListening.fire);
+        that.socket.on("message", that.events.onMessage.fire);
+        
+        that.socket.bind(that.options.port);
+    };
+    
     
     // Monkey patching to preserve Node Buffer objects during Infusion's expansion/merging process.
     fluid.isPlainObject = function (totest) {
