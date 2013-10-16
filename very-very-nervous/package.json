@@ -5,6 +5,7 @@
     "bugs": "http://github.com/colinbdclark/artwork/issues",
     "homepage": "http://colinclark.org",
     "dependencies": {
+        "infusion": "git://github.com/fluid-project/infusion.git",
         "node-image": "git://github.com/luismreis/node-image.git",
         "flocking": "git://github.com/colinbdclark/node-flocking.git#raspberry-pi-alsa"
     },
