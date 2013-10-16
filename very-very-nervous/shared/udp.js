@@ -147,6 +147,9 @@
         that.socket.on("message", that.events.onMessage.fire);
         
         that.socket.bind(that.options.port);
+        
+        console.log(that.socket.address.address);
+        console.log(that.socket.address.port);
     };
     
     
