@@ -6,8 +6,25 @@
         fluid = require("infusion"),
         colin = fluid.registerNamespace("colin");
 
+    fluid.defaults("colin.udpSocketComponent", {
+        gradeNames: ["fluid.littleComponent", "autoInit"],
+        members: {
+            socket: {
+                expander: {
+                    "this": dgram,
+                    method: "createSocket",
+                    args: ["udp4"]
+                }
+            }
+        }
+    });
+    
+    /**********
+     * Client *
+     **********/
+    
     fluid.defaults("colin.udpClient", {
-        gradeNames: ["fluid.eventedComponent", "autoInit"],
+        gradeNames: ["fluid.eventedComponent", "colin.udpSocketComponent", "autoInit"],
     
         host: "",
         port: 65534,
@@ -78,4 +95,32 @@
         };
     };
 
+
+    /**********
+     * Server *
+     **********/
+    
+    fluid.defaults("colin.udpServer", {
+        gradeNames: ["fluid.eventedComponent", "colin.udpSocketComponent", "autoInit"],
+
+        events: {
+            onListening: null,
+            onMessage: null
+        },
+        
+        listeners: {
+            onCreate: [
+                {
+                    "this": "{that}.socket",
+                    method: "on",
+                    args: ["listening", "{that}.events.onListening.fire"]
+                },
+                {
+                    "this": "{that}.socket",
+                    method: "on",
+                    args: ["message", "{that}.events.onMessage.fire"]
+                }
+            ]
+        }
+    });
 }());

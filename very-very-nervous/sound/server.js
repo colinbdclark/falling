@@ -1,25 +1,13 @@
-"use strict";
+(function () {
+    "use strict";
 
-var flock = require("flocking");
+    var fluid = require("infusion"),
+        loader = fluid.getLoader(__dirname),
+        colin = fluid.registerNamespace("colin");    
 
-flock.init({
-    bufferSize: 128,
-    rates: {
-        audio: 22050
-    }
-});
+    loader.require("../shared/udp.js");
+    loader.require("./movementResponder.js");
 
-var synth = flock.synth({
-    synthDef: {
-        id: "carrier",
-        ugen: "flock.ugen.sinOsc",
-        freq: 220,
-        mul: 0.5
-    }
-});
-
-synth.play();
-
-function listen (whitePixels) {
-    synth.set("carrier.freq", ((whitePixels / numPixels) * 11025) + 60);
-}
+    var movementResponder = colin.veryVery.movementResponder();
+    
+}());
