@@ -4,8 +4,9 @@ var fs = require("fs"),
     exec = require("child_process").exec,
     dgram = require("dgram"),
     FreeImage = require("node-image").Image,
-    fluid = require("infusion");
-
+    fluid = require("infusion"),
+    colin = fluid.registerNamespace("colin");
+    
 fluid.defaults("colin.udpClient", {
     gradeNames: ["fluid.eventedComponent", "autoInit"],
     
@@ -98,8 +99,10 @@ fluid.defaults("colin.veryVery.snapshotter.cmd", {
         },
         
         numPixels: {
-            expander: "colin.veryVery.snapshotter.getNumPixels",
-            args: ["{that}.options.imageDef.width", "{that}.options.imageDef.height"]
+            expander: {
+                funcName: "colin.veryVery.snapshotter.cmd.getNumPixels",
+                args: ["{that}.options.imageDef.width", "{that}.options.imageDef.height"]
+            }
         },
         
         earlierImg: undefined,
@@ -108,11 +111,11 @@ fluid.defaults("colin.veryVery.snapshotter.cmd", {
 
     components: {
         processor: {
-            type: "colin.veryVery.movementProcessor"
+            type: "colin.veryVery.movementDetector.grey"
         },
         
         outputter: {
-            type: "colin.veryVery.udpOutputter"
+            type: "colin.veryVery.consoleOutputter"
         }
     },
     
@@ -125,11 +128,9 @@ fluid.defaults("colin.veryVery.snapshotter.cmd", {
         ],
         
         onError: {
-            {
-                "this": console,
-                method: "log",
-                args: ["{arguments}.0"]
-            }
+            "this": console,
+            method: "log",
+            args: ["{arguments}.0"]
         }
     },
     
@@ -144,6 +145,8 @@ colin.veryVery.snapshotter.cmd.getNumPixels = function (w, h) {
 
 colin.veryVery.snapshotter.cmd.bindMethods = function (that) {
     that.snap = function () {
+        var filename = that.options.imageDef.filename;
+        
         exec(that.execCmd, function (error) {
             if (error) {
                 console.log("Error capturing snapshot.", error);
@@ -162,8 +165,8 @@ colin.veryVery.snapshotter.cmd.bindMethods = function (that) {
                 that.laterImg = FreeImage.loadFromMemory(fileData);
                 if (that.earlierImg && that.laterImg) {
                     // TODO: Better parameterization of 
-                    var result = that.processor.processGreyscale(earlierImg.buffer, laterImg.buffer);
-                    that.outputter.output(whitePixels / that.numPixels);
+                    var result = that.processor.process(that.earlierImg.buffer, that.laterImg.buffer);
+                    that.outputter.output(result / that.numPixels);
                 }
             });
         });
@@ -222,7 +225,7 @@ fluid.defaults("colin.veryVery.movementDetector.colour", {
             }
         ]
     }
-};
+});
 
 colin.veryVery.movementDetector.colour.bindMethods = function (that) {
     that.process = function (earlier, later) {
@@ -267,7 +270,7 @@ fluid.defaults("colin.veryVery.udpOutputter", {
                 port: 65534
             }
         }
-    }
+    },
     
     listeners: {
         onCreate: [
@@ -284,6 +287,26 @@ colin.veryVery.udpOutputter.bindMethods = function (that) {
         that.udpClient.setFloat(value);
     };
 };
+
+fluid.defaults("colin.veryVery.consoleOutputter", {
+    gradeNames: ["fluid.eventedComponent", "autoInit"],
+    
+    listeners: {
+        onCreate: [
+            {
+                funcName: "colin.veryVery.consoleOutputter.bindMethods",
+                args: ["{that}"]
+            }
+        ]
+    }
+});
+
+colin.veryVery.consoleOutputter.bindMethods = function (that) {
+    that.output = function (value) {
+        console.log("Movement factor:", value);
+    };
+};
+
 
 var snapshotter = colin.veryVery.snapshotter.cmd();
 snapshotter.snap();
