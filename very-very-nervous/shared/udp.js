@@ -8,6 +8,10 @@
 
     fluid.defaults("colin.udpSocketComponent", {
         gradeNames: ["fluid.littleComponent", "autoInit"],
+        
+        host: "127.0.0.1",
+        port: 65534,
+        
         members: {
             socket: {
                 expander: {
@@ -26,8 +30,6 @@
     fluid.defaults("colin.udpClient", {
         gradeNames: ["fluid.eventedComponent", "colin.udpSocketComponent", "autoInit"],
     
-        host: "",
-        port: 65534,
         maxMessageLength: 4,
     
         members: {
@@ -119,6 +121,11 @@
                     "this": "{that}.socket",
                     method: "on",
                     args: ["message", "{that}.events.onMessage.fire"]
+                },
+                {
+                    "this": "{that}.socket",
+                    method: "bind",
+                    args: ["{that}.options.port", "{that}.options.host"]
                 }
             ]
         }
