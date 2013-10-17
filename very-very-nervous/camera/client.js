@@ -5,7 +5,7 @@
         loader = fluid.getLoader(__dirname),
         colin = fluid.registerNamespace("colin");    
 
-    loader.require("../shared/udp.js");
+    loader.require("../shared/net.js");
     loader.require("./movementDetectors.js");
     loader.require("./snapshotter.js");
 

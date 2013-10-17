@@ -44,7 +44,7 @@
             },
         
             outputter: {
-                type: "colin.veryVery.udpOutputter"
+                type: "colin.veryVery.netOutputter"
             }
         },
     
@@ -103,12 +103,12 @@
     
 
 
-    fluid.defaults("colin.veryVery.udpOutputter", {
+    fluid.defaults("colin.veryVery.netOutputter", {
         gradeNames: ["fluid.eventedComponent", "autoInit"],
     
         components: {
-            udpClient: {
-                type: "colin.udpClient",
+            client: {
+                type: "colin.tcpClient",
                 options: {
                     maxMessageLength: 4,
                     host: "192.168.1.16",
@@ -120,16 +120,16 @@
         listeners: {
             onCreate: [
                 {
-                    funcName: "colin.veryVery.udpOutputter.bindMethods",
+                    funcName: "colin.veryVery.netOutputter.bindMethods",
                     args: ["{that}"]
                 }
             ]
         }
     });
 
-    colin.veryVery.udpOutputter.bindMethods = function (that) {
+    colin.veryVery.netOutputter.bindMethods = function (that) {
         that.output = function (value) {
-            that.udpClient.sendFloat(value);
+            that.client.sendFloat(value);
         };
     };
 
