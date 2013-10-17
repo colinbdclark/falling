@@ -263,8 +263,13 @@
                 },
                 {
                     "this": "{that}.server",
+                    method: "on",
+                    args: ["listening", "{that}.events.onListening.fire"]
+                },
+                {
+                    "this": "{that}.server",
                     method: "listen",
-                    args: ["{that}.options.port", "that.events.onListening.fire"]
+                    args: ["{that}.options.port"]
                 }
             ],
             
@@ -281,43 +286,15 @@
         }
     });
     
-    colin.tcpServer.bindConnectionSocket = function (that, socket) {
-        // TODO: This is not smart TCP handling.
-        socket.on("data", that.events.onMessage.fire);
+    colin.tcpServer.logError = function (that, err) {
+        console.log(that.options.port);
+        throw err;
     };
     
-    
-    
-    /*
-var net = require('net');
-var server = net.createServer(function(c) { //'connection' listener
-  console.log('server connected');
-  c.on('end', function() {
-    console.log('server disconnected');
-  });
-  c.write('hello\r\n');
-  c.pipe(c);
-});
-server.listen(8124, function() { //'listening' listener
-  console.log('server bound');
-});
-    */
-    /*
-var net = require('net');
-var client = net.connect({port: 8124},
-    function() { //'connect' listener
-  console.log('client connected');
-  client.write('world!\r\n');
-});
-client.on('data', function(data) {
-  console.log(data.toString());
-  client.end();
-});
-client.on('end', function() {
-  console.log('client disconnected');
-});
-    */
-    
+    colin.tcpServer.bindConnectionSocket = function (that, socket) {
+        // TODO: Handle TCP packets properly.
+        socket.on("data", that.events.onMessage.fire);
+    };
 
     // Monkey patching to preserve Node Buffer objects during Infusion's expansion/merging process.
     fluid.isPlainObject = function (totest) {
