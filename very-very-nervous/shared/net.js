@@ -81,13 +81,6 @@
         },
     
         listeners: {
-            onCreate: [
-                {
-                    funcName: "colin.udpClient.bindMethods",
-                    args: ["{that}"]
-                }
-            ],
-            
             onError: {
                 "this": console,
                 method: "log",
@@ -142,12 +135,6 @@
                 "this": console,
                 method: "log",
                 args: ["Server listening at", "{arguments}.1", ":", "{arguments}.0"]
-            },
-            
-            onMessage: {
-                "this": console,
-                method: "log",
-                args: ["Got message", "{arguments}.0", "{arguments}.1"]
             },
             
             onError: {
@@ -285,11 +272,6 @@
             }
         }
     });
-    
-    colin.tcpServer.logError = function (that, err) {
-        console.log(that.options.port);
-        throw err;
-    };
     
     colin.tcpServer.bindConnectionSocket = function (that, socket) {
         // TODO: Handle TCP packets properly.
