@@ -29,7 +29,7 @@
             },
             
             motionSource: {
-                type: "colin.veryVery.motionSource.server",
+                type: "colin.veryVery.motionSource.net",
                 options: {
                     listeners: {
                         onMotion: {
@@ -51,7 +51,7 @@
     });
     
     
-    fluid.defaults("colin.veryVery.motionSource.server", {
+    fluid.defaults("colin.veryVery.motionSource.net", {
         gradeNames: ["fluid.eventedComponent", "autoInit"],
         
         components: {
@@ -59,13 +59,9 @@
                 type: "colin.tcpServer",
                 options: {
                     listeners: {
-                        onListening: {
-                            funcName: "{synth}.play"
-                        },
-                        
                         onMessage: {
-                            funcName: "colin.veryVery.motionSource.server.scaleValue",
-                            args: ["{arguments}.0", "{arguments}.1", "{udp}.events.onMotion.fire"]
+                            funcName: "colin.veryVery.motionSource.net.scaleValue",
+                            args: ["{arguments}.0", "{arguments}.1", "{net}.events.onMotion.fire"]
                         }
                     }
                 }
@@ -77,7 +73,7 @@
         }
     });
     
-    colin.veryVery.motionSource.server.scaleValue = function (rawMotionMessage, remoteInfo, onMotion) {
+    colin.veryVery.motionSource.net.scaleValue = function (rawMotionMessage, remoteInfo, onMotion) {
         var value = rawMotionMessage.readFloatLE(0);
         value = (value * 11025) + 60;
         
