@@ -43,10 +43,6 @@
         
         listeners: {
             onCreate: [
-                /*{
-                    funcName: "flock.init",
-                    args: ["{that}.options.audioEnvironment"]
-                },*/
                 {
                     funcName: "{that}.synth.play"
                 }
@@ -60,10 +56,7 @@
         
         components: {
             server: {
-                type: "colin.tcpServer"
-            }
-            /*udpServer: {
-                type: "colin.udpServer",
+                type: "colin.tcpServer",
                 options: {
                     listeners: {
                         onListening: {
@@ -76,7 +69,7 @@
                         }
                     }
                 }
-            }*/
+            }
         },
         
         events: {

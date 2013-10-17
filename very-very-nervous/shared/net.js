@@ -44,8 +44,10 @@
         },
         
         invokers: {
-            sendFloat: "colin.bufferedMessageSender.sendFloat",
-            args: ["{arguments}.0", "{that}"]
+            sendFloat: {
+                funcName: "colin.bufferedMessageSender.sendFloat",
+                args: ["{arguments}.0", "{that}.msgBuffer", "{that}"]
+            }
         }
     });
     
@@ -53,8 +55,7 @@
         return new Buffer(len);
     };
     
-    colin.bufferedMessageSender.sendFloat = function (value, that) {
-        var buffer = that.msgBuffer;
+    colin.bufferedMessageSender.sendFloat = function (value, buffer, that) {
         buffer.writeFloatLE(value, 0);
         console.log("Sending value: ", value);
         that.send(buffer);
@@ -219,29 +220,6 @@
     };
     
     
-    /*
-    colin.udpClient.bindMethods = function (that) {
-        that.send = function (message) {
-            console.log(that.options.host, ":", that.options.port);
-            that.socket.send(message, 0, message.length, that.options.port, that.options.host, function (err, bytes) {
-                if (err) {
-                    that.events.onError.fire(err);
-                    return;
-                }
-        
-                that.events.onResponse.fire(bytes);
-            });
-        };
-    
-        that.sendFloat = function (value) {
-            var buffer = that.msgBuffer;
-            buffer.writeFloatLE(value, 0);
-            console.log("sending value: ", value);
-            that.send(buffer);
-        };
-    };
-    */
-    
     /**************
      * TCP Server *
      **************/
@@ -269,8 +247,24 @@
         listeners: {
             onCreate: [
                 {
-                    funcName: "colin.tcpServer.bind",
-                    args: ["{that}"]
+                    "this": "{that}.server",
+                    method: "on",
+                    args: ["connection", "{that}.events.onConnection.fire"]
+                },
+                {
+                    "this": "{that}.server",
+                    method: "on",
+                    args: ["error", "{that}.events.onError.fire"]
+                },
+                {
+                    "this": "{that}.server",
+                    method: "on",
+                    args: ["connection", "{that}.events.onClose.fire"]
+                },
+                {
+                    "this": "{that}.server",
+                    method: "listen",
+                    args: ["{that}.options.port", "that.events.onListening.fire"]
                 }
             ],
             
@@ -287,18 +281,9 @@
         }
     });
     
-    colin.tcpServer.bind = function (that) {
-        that.server.on("connection", that.events.onConnection.fire);
-        that.server.on("error", that.events.onError.fire);
-        that.server.on("close", that.events.onClose.fire);
-        
-        that.server.listen(that.options.port, that.events.onListening.fire);
-    };
-    
     colin.tcpServer.bindConnectionSocket = function (that, socket) {
-        socket.on("data", function (buffer) {
-            console.log(buffer);
-        });
+        // TODO: This is not smart TCP handling.
+        socket.on("data", that.events.onMessage.fire);
     };
     
     
