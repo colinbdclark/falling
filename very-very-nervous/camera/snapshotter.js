@@ -108,7 +108,7 @@
     
         components: {
             client: {
-                type: "colin.tcpClient",
+                type: "colin.udpClient",
                 options: {
                     maxMessageLength: 4,
                     host: "192.168.1.16",

@@ -56,7 +56,7 @@
         
         components: {
             server: {
-                type: "colin.tcpServer",
+                type: "colin.udpServer",
                 options: {
                     listeners: {
                         onMessage: {
