@@ -6,8 +6,8 @@
         colin = fluid.registerNamespace("colin");    
 
     loader.require("../shared/net.js");
+    loader.require("./ugens.js");
     loader.require("./movementResponder.js");
-
     
     var movementResponder = colin.veryVery.movementResponder();
     
