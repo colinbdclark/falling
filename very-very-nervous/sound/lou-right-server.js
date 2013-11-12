@@ -11,7 +11,7 @@
     var movementResponder = colin.lou.movementResponder({        
         components: {
             instrument: {
-                type: "colin.lou.instruments.right"
+                type: "colin.lou.instrument.right"
             }
         }
     });
