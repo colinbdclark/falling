@@ -15,40 +15,44 @@
                 type: "colin.lou"
             },
             
-            motionSource: {
-                type: "colin.lou.motionSource.net",
+            conductor: {
+                type: "colin.udpServer",
+                
                 options: {
-                    components: {
-                        server: {
-                            options: {
-                                listeners: {
-                                    onMessage: {
-                                        funcName: "colin.lou.mapMotionToSynth",
-                                        args: ["{instrument}", "{arguments}.0", "{arguments}.1"]
-                                    }
-                                }
-                            }
+                    port: 65533,
+                    listeners: {
+                        onMessage: {
+                            funcName: "colin.lou.start",
+                            args: ["{instrument}", "{arguments}.0"]
+                        }
+                    }
+                }
+            },
+            
+            motionSource: {
+                type: "colin.udpServer",
+                
+                options: {
+                    listeners: {
+                        onMessage: {
+                            funcName: "colin.lou.mapMotionToSynth",
+                            args: ["{instrument}", "{arguments}.0", "{arguments}.1"]
                         }
                     }
                 }
             }
-        },
-        
-        events: {
-            onBuffersLoaded: null
         }
     });
     
-    
-    fluid.defaults("colin.lou.motionSource.net", {
-        gradeNames: ["fluid.eventedComponent", "autoInit"],
+    colin.lou.start = function (instrument, rawMessage) {
+        var conductorSignal = rawMessage.readFloatLE(0);
         
-        components: {
-            server: {
-                type: "colin.udpServer"
-            }
+        if (conductorSignal === 1.0) {
+            flock.enviro.shared.play();
+        } else if (conductorSignal === 0.0) {
+            flock.enviro.shared.stop();
         }
-    });
+    };
     
     colin.lou.mapMotionToSynth = function (louInstrument, rawMotionMessage, remoteInfo) {
         var value = rawMotionMessage.readFloatLE(0);

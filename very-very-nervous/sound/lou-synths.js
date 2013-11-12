@@ -36,12 +36,6 @@
             pianoGuitar: {
                 type: "colin.lou.synths.pianoGuitar"
             }
-        },
-        
-        listeners: {
-            onCreate: {
-                funcName: "flock.enviro.shared.play"    
-            }
         }
     });
     
