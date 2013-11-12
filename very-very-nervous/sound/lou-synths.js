@@ -7,7 +7,7 @@
 
     flock.init({
         bufferSize: 128,
-        numBuses: 3,
+        numBuses: 6,
         rates: {
             audio: 22050
         }
@@ -17,140 +17,154 @@
         gradeNames: ["fluid.eventedComponent", "autoInit"],
         
         components: {
-            bass: {
-                type: "colin.lou.bass"
+            pianoClock: {
+                type: "colin.lou.synths.pianoClock"
             },
-            piano: {
-                type: "colin.lou.piano"
+            
+            guitarClock: {
+                type: "colin.lou.synths.guitarClock"
             },
-            guitar: {
-                type: "colin.lou.guitar"
+            
+            drumClock: {
+                type: "colin.lou.synths.drumClock"
             },
-            drums: {
-                type: "colin.lou.drums"
+            
+            drumBass: {
+                type: "colin.lou.synths.drumBass"
             },
-            clock: {
-                type: "flock.scheduler.async.tempo",
-                options: {
-                    bpm: 104,
-                    listeners: {
-                        onCreate: [
-                            {
-                                funcName: "colin.lou.scheduleAttacks",
-                                args: ["{lou}.clock", "{lou}.options.schedule"]
-                            },
-                            {
-                                funcName: "flock.enviro.shared.play"
-                            }
-                        ]
-                    }
-                }
+            
+            pianoGuitar: {
+                type: "colin.lou.synths.pianoGuitar"
             }
         },
         
-        schedule: [
-            {
-                interval: "repeat",
-                time: 1, // bpm
-                change: {
-                    synth: "drums",
-                    values: {
-                        "trigger.source": 1.0
-                    }
-                }
-            },
-            {
-                interval: "repeat",
-                time: 1.25, // bpm
-                change: {
-                    synth: "piano",
-                    values: {
-                        "trigger.source": 1.0
-                    }
-                }
-            },
-            {
-                interval: "repeat",
-                time: 1.5, // bpm
-                change: {
-                    synth: "guitar",
-                    values: {
-                        "trigger.source": 1.0
+        listeners: {
+            onCreate: {
+                funcName: "flock.enviro.shared.play"    
+            }
+        }
+    });
+    
+    
+    fluid.registerNamespace("colin.lou.synths");
+    
+    fluid.defaults("colin.lou.synths.clock", {
+        gradeNames: ["flock.synth"],
+
+        bpm: 52,
+        
+        synthDef: {
+            ugen: "flock.ugen.out",
+            expand: 1,
+            sources: {
+                ugen: "flock.ugen.impulse",
+                rate: "control",
+                freq: {
+                    expander: {
+                        funcName: "colin.lou.synths.convertBeatsToFreq",
+                        args: ["{that}.options.pulse", "{that}.options.bpm"]
                     }
                 }
             }
+        }
+    });
+    
+    colin.lou.synths.convertBeatsToFreq = function (beats, bpm) {
+        return (bpm / beats) / 60;
+    };
+    
+    fluid.defaults("colin.lou.synths.pianoClock", {
+        gradeNames: ["colin.lou.synths.clock", "autoInit"],
+        
+        pulse: 1.25,
+        
+        synthDef: {
+            bus: 2
+        }
+    });
+    
+    fluid.defaults("colin.lou.synths.guitarClock", {
+        gradeNames: ["colin.lou.synths.clock", "autoInit"],
+        
+        pulse: 1.5,
+        
+        synthDef: {
+            bus: 3
+        }
+    });
+    
+    fluid.defaults("colin.lou.synths.drumClock", {
+        gradeNames: ["colin.lou.synths.clock", "autoInit"],
+        
+        pulse: 1,
+        
+        synthDef: {
+            bus: 4
+        }
+    });
+    
+    fluid.defaults("colin.lou.synths.drumBass", {
+        gradeNames: ["flock.synth", "autoInit"],
+        
+        synthDef: [            
+            // Drum
+            {
+                ugen: "flock.ugen.playBuffer",
+                mul: 0.5,
+                trigger: {
+                    id: "drumTrigger",
+                    ugen: "flock.ugen.in",
+                    bus: 4
+                },
+                buffer: {
+                    id: "tom",
+                    url: "../lou/audio/22050/tom-22050.wav"
+                }
+            },
+            
+            // Bass
+            {
+                ugen: "flock.ugen.sinOsc",
+                freq: 146 * (2 /3),
+                mul: 0.12
+            },
         ]
     });
     
-    colin.lou.scheduleAttacks = function (scheduler, schedule) {
-        scheduler.schedule(schedule);
-    };
-    
-    fluid.defaults("colin.lou.bass", {
+    fluid.defaults("colin.lou.synths.pianoGuitar", {
         gradeNames: ["flock.synth", "autoInit"],
-    
-        synthDef: {
-            ugen: "flock.ugen.sinOsc",
-            freq: 146 * (2 /3),
-            mul: 0.12
-        }
-    });
-
-    fluid.defaults("colin.lou.piano", {
-        gradeNames: ["flock.synth", "autoInit"],
-    
-        synthDef: {
-            ugen: "flock.ugen.playBuffer",
-            mul: 0.25,
-            trigger: {
-                id: "trigger",
-                ugen: "flock.ugen.valueChangeTrigger",
-                rate: "control",
-                source: 0.0
+        
+        synthDef: [
+            // Piano
+            {
+                ugen: "flock.ugen.playBuffer",
+                mul: 0.25,
+                trigger: {
+                    id: "pianoTrigger",
+                    ugen: "flock.ugen.in",
+                    bus: 2
+                },
+                buffer: {
+                    id: "dsharp-piano",
+                    url: "../lou/audio/22050/dsharp-piano-22050.wav"
+                }
             },
-            buffer: {
-                id: "dsharp-piano",
-                url: "../../lou/audio/22050/dsharp-piano-22050.wav"
+            
+            // Guitar
+            {
+                ugen: "flock.ugen.playBuffer",
+                mul: 0.5,
+                trigger: {
+                    id: "guitarTrigger",
+                    ugen: "flock.ugen.in",
+                    bus: 3
+                },
+                buffer: {
+                    id: "csharp-guitar",
+                    url: "../lou/audio/22050/csharp-guitar-22050.wav"
+                }
             }
-        }
-    });
-
-    fluid.defaults("colin.lou.guitar", {
-        gradeNames: ["flock.synth", "autoInit"],
-    
-        synthDef: {
-            ugen: "flock.ugen.playBuffer",
-            mul: 0.5,
-            trigger: {
-                id: "trigger",
-                ugen: "flock.ugen.valueChangeTrigger",
-                rate: "control",
-                source: 0.0
-            },
-            buffer: {
-                id: "csharp-guitar",
-                url: "../../lou/audio/22050/csharp-guitar-22050.wav"
-            }
-        }
-    });
-
-    fluid.defaults("colin.lou.drums", {
-        gradeNames: ["flock.synth", "autoInit"],
-    
-        synthDef: {
-            ugen: "flock.ugen.playBuffer",
-            mul: 0.5,
-            trigger: {
-                id: "trigger",
-                ugen: "flock.ugen.valueChangeTrigger",
-                rate: "control",
-                source: 0.0
-            },
-            buffer: {
-                id: "tom",
-                url: "../../lou/audio/22050/tom-22050.wav"
-            }
-        }
+        ]
     });
 
 }());
