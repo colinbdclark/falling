@@ -2,8 +2,8 @@
     "use strict";
 
     var fluid = require("infusion"),
-        flock = fluid.require("flocking"),
-        colin = fluid.registerNamespace("colin");    
+        loader = fluid.getLoader(__dirname),
+        colin = fluid.registerNamespace("colin");
 
     loader.require("./lou-synths.js");
     

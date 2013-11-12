@@ -2,9 +2,8 @@
     "use strict";
 
     var fluid = require("infusion"),
-        loader = fluid.getLoader(__dirname),
-        colin = fluid.registerNamespace("colin");    
-        
+        flock = fluid.require("flocking"),
+        colin = fluid.registerNamespace("colin");
 
     flock.init({
         bufferSize: 128,
