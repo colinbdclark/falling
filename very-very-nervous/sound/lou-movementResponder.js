@@ -15,7 +15,7 @@
                 type: "colin.lou"
             },
             
-            conductor: {
+            conductorSource: {
                 type: "colin.udpServer",
                 
                 options: {
@@ -33,6 +33,7 @@
                 type: "colin.udpServer",
                 
                 options: {
+                    port: 65534,
                     listeners: {
                         onMessage: {
                             funcName: "colin.lou.mapMotionToSynth",
