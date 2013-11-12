@@ -16,6 +16,16 @@
     fluid.defaults("colin.lou", {
         gradeNames: ["fluid.eventedComponent", "autoInit"],
         
+        invokers: {
+            play: {
+                funcName: "flock.enviro.shared.play"
+            },
+            
+            stop: {
+                funcName: "flock.enviro.shared.stop"
+            }
+        },
+        
         components: {
             pianoClock: {
                 type: "colin.lou.synths.pianoClock"

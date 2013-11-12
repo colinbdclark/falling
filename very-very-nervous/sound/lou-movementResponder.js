@@ -48,9 +48,9 @@
         var conductorSignal = rawMessage.readFloatLE(0);
         
         if (conductorSignal === 1.0) {
-            flock.enviro.shared.play();
+            instrument.play();
         } else if (conductorSignal === 0.0) {
-            flock.enviro.shared.stop();
+            instrument.stop();
         }
     };
     
