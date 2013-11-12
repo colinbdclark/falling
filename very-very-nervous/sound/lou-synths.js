@@ -13,7 +13,7 @@
         }
     });
     
-    colin.registerNamespace("colin.lou");
+    fluid.registerNamespace("colin.lou");
     
     fluid.defaults("colin.lou.instrument", {
         gradeNames: ["fluid.eventedComponent"],
