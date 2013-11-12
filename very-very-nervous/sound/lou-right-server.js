@@ -8,14 +8,10 @@
     loader.require("../shared/net.js");
     loader.require("./lou-movementResponder.js");
     
-    var movementResponder = colin.lou.movementResponder({
-        components: {    
-            drumClock: {
-                type: "colin.lou.synths.drumClock"
-            },
-            
-            drumBass: {
-                type: "colin.lou.synths.drumBass"
+    var movementResponder = colin.lou.movementResponder({        
+        components: {
+            instrument: {
+                type: "colin.lou.instruments.right"
             }
         }
     });

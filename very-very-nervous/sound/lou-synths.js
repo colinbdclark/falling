@@ -13,8 +13,10 @@
         }
     });
     
-    fluid.defaults("colin.lou", {
-        gradeNames: ["fluid.eventedComponent", "autoInit"],
+    colin.registerNamespace("colin.lou");
+    
+    fluid.defaults("colin.lou.instrument", {
+        gradeNames: ["fluid.eventedComponent"],
         
         invokers: {
             play: {
@@ -24,7 +26,11 @@
             stop: {
                 funcName: "flock.enviro.shared.stop"
             }
-        },
+        }
+    });
+    
+    fluid.defaults("colin.lou.instrument.all", {
+        gradeNames: ["colin.lou.instrument", "autoInit"],
         
         components: {
             pianoClock: {
@@ -41,6 +47,38 @@
             
             drumBass: {
                 type: "colin.lou.synths.drumBass"
+            },
+            
+            pianoGuitar: {
+                type: "colin.lou.synths.pianoGuitar"
+            }
+        }
+    });
+    
+    fluid.defaults("colin.lou.instrument.left", {
+        gradeNames: ["colin.lou.instrument", "autoInit"],
+        
+        components: {
+            drumClock: {
+                type: "colin.lou.synths.drumClock"
+            },
+            
+            drumBass: {
+                type: "colin.lou.synths.drumBass"
+            }
+        }
+    });
+    
+    fluid.defaults("colin.lou.instrument.right", {
+        gradeNames: ["colin.lou.instrument", "autoInit"],
+        
+        components: {
+            pianoClock: {
+                type: "colin.lou.synths.pianoClock"
+            },
+            
+            guitarClock: {
+                type: "colin.lou.synths.guitarClock"
             },
             
             pianoGuitar: {

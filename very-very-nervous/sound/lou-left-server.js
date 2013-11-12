@@ -8,18 +8,10 @@
     loader.require("../shared/net.js");
     loader.require("./lou-movementResponder.js");
     
-    var movementResponder = colin.lou.movementResponder({
+    var movementResponder = colin.lou.movementResponder({        
         components: {
-            pianoClock: {
-                type: "colin.lou.synths.pianoClock"
-            },
-            
-            guitarClock: {
-                type: "colin.lou.synths.guitarClock"
-            },
-            
-            pianoGuitar: {
-                type: "colin.lou.synths.pianoGuitar"
+            instrument: {
+                type: "colin.lou.instruments.left"
             }
         }
     });
