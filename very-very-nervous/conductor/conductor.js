@@ -35,7 +35,7 @@
             },
 
             rightClient: {
-                type: "colin.udpClient",
+                type: "colin.conductor.client",
                 options: {
                     host: "192.168.0.44",
                     listeners: {
