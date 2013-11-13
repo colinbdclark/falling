@@ -6,7 +6,7 @@
         colin = fluid.registerNamespace("colin");
 
     flock.init({
-        bufferSize: 128,
+        bufferSize: 64,
         numBuses: 6,
         rates: {
             audio: 22050
@@ -110,12 +110,17 @@
                     bpm: "{that}.options.bpm",
                     pulse: {
                         ugen: "flock.ugen.math",
-                        source: {
-                            id: "motion",
-                            ugen: "colin.lou.ugen.dynamicValue",
-                            mul: 2
-                        },
-                        add: "{that}.options.pulse"
+                        source: "{that}.options.pulse",
+                        sub: {
+                            ugen: "colin.lou.ugen.quantize",
+                            steps: 4,
+                            source: {
+                                id: "motion",
+                                ugen: "colin.lou.ugen.dynamicValue",
+                                mul: 4
+                            },
+                            mul: 0.5
+                        }
                     }
                 }
             }
@@ -260,7 +265,7 @@
                 out[i] = m.value;
             }
             
-                that.mulAdd(numSamps);
+            that.mulAdd(numSamps);
         };
         
         that.onInputChanged();
@@ -329,7 +334,7 @@
             var m = that.model,
                 out = that.output,
                 inputs = that.inputs,
-                source = inputs.ssource.output,
+                source = inputs.source.output,
                 steps = inputs.steps.output[0],
                 i,
                 j,
@@ -338,7 +343,7 @@
             if (steps !== m.steps) {
                 m.steps = steps;
                 m.stepValue = steps > 0 ? 1.0 / steps : 0;
-                m.halfStep = stepValue / 2;
+                m.halfStep = m.stepValue / 2;
             }
             
             for (i = j = 0; i < numSamps; i++, j += m.strides.source) {
@@ -358,10 +363,10 @@
                     }
                 }
                 
-                out[i] = quantized;
-                
-                that.mulAdd(numSamps);
+                out[i] = quantized;                
             }
+            
+            that.mulAdd(numSamps);
         };
         
         that.onInputChanged();
