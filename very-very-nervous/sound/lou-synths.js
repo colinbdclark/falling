@@ -93,8 +93,12 @@
     fluid.defaults("colin.lou.synths.clock", {
         gradeNames: ["flock.synth"],
 
-        bpm: 104,
-        
+        bpm: 104
+    });
+    
+    fluid.defaults("colin.lou.synths.clock.motion", {
+        gradeNames: ["colin.lou.synths.clock"],
+
         synthDef: {
             ugen: "flock.ugen.out",
             expand: 1,
@@ -118,9 +122,28 @@
         }
     });
     
+    fluid.defaults("colin.lou.synths.clock.static", {
+        gradeNames: ["colin.lou.synths.clock"],
+        
+        synthDef: {
+            ugen: "flock.ugen.out",
+            expand: 1,
+            sources: {
+                ugen: "flock.ugen.impulse",
+                rate: "control",
+                freq: {
+                    expander: {
+                        funcName: "colin.lou.synths.convertBeatsToFreq",
+                        args: ["{that}.options.pulse", "{that}.options.bpm"]
+                    }
+                }
+            }
+        }
+    });
+    
     
     fluid.defaults("colin.lou.synths.pianoClock", {
-        gradeNames: ["colin.lou.synths.clock", "autoInit"],
+        gradeNames: ["colin.lou.synths.clock.static", "autoInit"],
         
         pulse: 1.25,
         
@@ -130,7 +153,7 @@
     });
     
     fluid.defaults("colin.lou.synths.guitarClock", {
-        gradeNames: ["colin.lou.synths.clock", "autoInit"],
+        gradeNames: ["colin.lou.synths.clock.static", "autoInit"],
         
         pulse: 1.5,
         
@@ -140,7 +163,7 @@
     });
     
     fluid.defaults("colin.lou.synths.drumClock", {
-        gradeNames: ["colin.lou.synths.clock", "autoInit"],
+        gradeNames: ["colin.lou.synths.clock.motion", "autoInit"],
         
         pulse: 1,
         
@@ -213,6 +236,10 @@
         ]
     });
 
+    colin.lou.synths.convertBeatsToFreq = function (beats, bpm) {
+        return (bpm / beats) / 60;
+    };
+    
     
     fluid.registerNamespace("colin.lou.ugen");
     
