@@ -10,9 +10,23 @@
     fluid.defaults("colin.lou.movementResponder", {
         gradeNames: ["fluid.eventedComponent", "autoInit"],
         
+        motionValueUGenNames: {
+            pianoClock: ["motion"],
+            guitarClock: ["motion"],            
+            drumClock: ["motion"]
+        },
+        
         components: {
             instrument: {
-                type: "colin.lou"
+                type: "colin.lou",
+                options: {
+                    listeners: {
+                        onCreate: {
+                            funcName: "colin.lou.setupMotionValueUGens",
+                            args: ["{movementResponder}.options.motionValueUGenNames", "{that}"]
+                        }
+                    }
+                }
             },
             
             conductorSource: {
@@ -55,8 +69,34 @@
         }
     };
     
-    colin.lou.mapMotionToSynth = function (louInstrument, rawMotionMessage, remoteInfo) {
-        var value = rawMotionMessage.readFloatLE(0);
+    colin.lou.setupMotionValueUGens = function (motionValueUGenNames, instrument) {
+        var motionValueUGens = [];
+        fluid.each(motionValueUGenNames, function (ugenNames, synthName) {
+            var synth = instrument[synthName];
+            if (!synth) {
+                return;
+            }
+            
+            fluid.each(ugenNames, function (ugenName) {
+                motionValueUGens.push(synth.namedNodes[ugenName]);
+            });
+            
+            console.log("Tracking motion with ugens", ugenNames, "on synth named", synthName);
+        });
+        
+        instrument.motionValueUGens = motionValueUGens;
+    };
+    
+    colin.lou.mapMotionToSynth = function (instrument, rawMotionMessage, remoteInfo) {
+        var value = rawMotionMessage.readFloatLE(0),
+            motionValueUGens = instrument.motionValueUGens,
+            i,
+            ugen;
+        
         console.log("Raw value:", value);
+        for (i = 0; i < motionValueUGens.length; i++) {
+            ugen = motionValueUGens[i];
+            ugen.model.value = value;
+        }
     };
 }());

@@ -6,7 +6,7 @@
         colin = fluid.registerNamespace("colin");
     
     fluid.registerNamespace("colin.ugen");
-
+    
     // Cut and pasted from flocking-ugens.
     colin.ugen.movementPlayer = function (inputs, output, options) {
         var that = flock.ugen(inputs, output, options);

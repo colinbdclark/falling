@@ -93,7 +93,7 @@
     fluid.defaults("colin.lou.synths.clock", {
         gradeNames: ["flock.synth"],
 
-        bpm: 52,
+        bpm: 104,
         
         synthDef: {
             ugen: "flock.ugen.out",
@@ -102,18 +102,22 @@
                 ugen: "flock.ugen.impulse",
                 rate: "control",
                 freq: {
-                    expander: {
-                        funcName: "colin.lou.synths.convertBeatsToFreq",
-                        args: ["{that}.options.pulse", "{that}.options.bpm"]
+                    ugen: "colin.lou.ugen.pulseToFreq",
+                    bpm: "{that}.options.bpm",
+                    pulse: {
+                        ugen: "flock.ugen.math",
+                        source: {
+                            id: "motion",
+                            ugen: "colin.lou.ugen.dynamicValue",
+                            mul: 2
+                        },
+                        add: "{that}.options.pulse"
                     }
                 }
             }
         }
     });
     
-    colin.lou.synths.convertBeatsToFreq = function (beats, bpm) {
-        return (bpm / beats) / 60;
-    };
     
     fluid.defaults("colin.lou.synths.pianoClock", {
         gradeNames: ["colin.lou.synths.clock", "autoInit"],
@@ -209,4 +213,146 @@
         ]
     });
 
+    
+    fluid.registerNamespace("colin.lou.ugen");
+    
+    /**
+     * Represents a signal whose value is changed "behind the scenes" by some other process.
+     *
+     * To change this unit generator's value, update its model.value property.
+     */
+    colin.lou.ugen.dynamicValue = function (inputs, output, options) {
+        var that = flock.ugen(inputs, output, options);
+        
+        that.gen = function (numSamps) {
+            var out = that.output,
+                m = that.model,
+                i;
+            
+            for (i = 0; i < numSamps; i++) {
+                out[i] = m.value;
+            }
+            
+                that.mulAdd(numSamps);
+        };
+        
+        that.onInputChanged();
+        return that;
+    };
+    
+    fluid.defaults("colin.lou.ugen.dynamicValue", {
+        rate: "control",
+        ugenOptions: {
+            model: {
+                value: 0
+            }
+        }
+    });
+    
+    
+    colin.lou.ugen.pulseToFreq = function (inputs, output, options) {
+        var that = flock.ugen(inputs, output, options);
+        
+        that.gen = function (numSamps) {
+            var m = that.model,
+                out = that.output,
+                inputs = that.inputs,
+                bpm = inputs.bpm.output[0],
+                pulse = inputs.pulse.output[0],
+                value = m.value,
+                i;
+            
+            if (bpm !== m.prevBPM || pulse !== m.prevPulse) {
+                m.prevBPM = bpm;
+                m.prevPulse = pulse;
+                value = m.value = (bpm / pulse) / 60;
+            }
+            
+            for (i = 0; i < numSamps; i++) {
+                out[i] = value;
+            }
+            
+            that.mulAdd(numSamps);
+        };
+        
+        that.onInputChanged();
+        return that;
+    };
+    
+    fluid.defaults("colin.lou.ugen.pulseToFreq", {
+        rate: "control",
+        inputs: {
+            bpm: 60,
+            pulse: 1
+        },
+        ugenOptions: {
+            model: {
+                prevBPM: 0,
+                prevPulse: 0,
+                value: 0
+            }
+        }
+    });
+    
+    // Source values should be in the range of 0..1 (values lower or higher will be clipped to 0 or 1, respectively)
+    colin.lou.ugen.quantize = function (inputs, output, options) {
+        var that = flock.ugen(inputs, output, options);
+        
+        that.gen = function (numSamps) {
+            var m = that.model,
+                out = that.output,
+                inputs = that.inputs,
+                source = inputs.ssource.output,
+                steps = inputs.steps.output[0],
+                i,
+                j,
+                k;
+            
+            if (steps !== m.steps) {
+                m.steps = steps;
+                m.stepValue = steps > 0 ? 1.0 / steps : 0;
+                m.halfStep = stepValue / 2;
+            }
+            
+            for (i = j = 0; i < numSamps; i++, j += m.strides.source) {
+                var val = source[j],
+                    quantized = 1;
+                
+                if (val <= 0) {
+                    quantized = 0;
+                } else if (val >= 1.0){
+                    quantized = 1.0;
+                } else {
+                    for (k = m.stepValue; k < m.steps; k += m.stepValue) {
+                        if (val <= k) {
+                            quantized = val < (k - m.halfStep) ? k - m.stepValue : k;
+                            break;
+                        }
+                    }
+                }
+                
+                out[i] = quantized;
+                
+                that.mulAdd(numSamps);
+            }
+        };
+        
+        that.onInputChanged();
+        return that;
+    };
+    
+    fluid.defaults("colin.lou.ugen.quantize", {
+        rate: "audio",
+        inputs: {
+            steps: 4,
+            source: undefined
+        },
+        ugenOptions: {
+            strideInputs: ["source"],
+            model: {
+                steps: 0,
+                stepValue: 0
+            }
+        }
+    });
 }());
