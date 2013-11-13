@@ -113,11 +113,11 @@
                         source: "{that}.options.pulse",
                         sub: {
                             ugen: "colin.lou.ugen.quantize",
-                            steps: 4,
+                            steps: 8,
                             source: {
                                 id: "motion",
                                 ugen: "colin.lou.ugen.dynamicValue",
-                                mul: 3 
+                                mul: 1.5 
                             },
                             mul: 0.5
                         }
