@@ -117,7 +117,7 @@
                             source: {
                                 id: "motion",
                                 ugen: "colin.lou.ugen.dynamicValue",
-                                mul: 4
+                                mul: 3 
                             },
                             mul: 0.5
                         }
