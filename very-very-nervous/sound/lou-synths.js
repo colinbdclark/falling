@@ -104,23 +104,27 @@
             expand: 1,
             sources: {
                 ugen: "flock.ugen.impulse",
-                rate: "control",
+                rate: "audio",
                 freq: {
+                    rate: "audio",
                     ugen: "colin.lou.ugen.pulseToFreq",
                     bpm: "{that}.options.bpm",
                     pulse: {
+                        rate: "audio",
                         ugen: "flock.ugen.math",
                         source: "{that}.options.pulse",
-                        sub: {
+                        add: {
+                            rate: "audio",
                             ugen: "colin.lou.ugen.lag",
-                            time: 1,
+                            time: 10,
                             source: {
+                                rate: "audio",
                                 ugen: "colin.lou.ugen.quantize",
                                 steps: 4,
                                 source: {
                                     id: "motion",
                                     ugen: "colin.lou.ugen.dynamicValue",
-                                    mul: 4
+                                    mul: 3
                                 },
                                 mul: 0.5
                             }
@@ -202,9 +206,25 @@
             
             // Bass
             {
-                ugen: "flock.ugen.sinOsc",
-                freq: 146 * (2 /3),
-                mul: 0.12
+                ugen: "flock.ugen.sin",
+                freq: {
+                    ugen: "flock.ugen.math",
+                    rate: "audio",
+                    source: (146 * (2 / 3)) / 2,
+                    mul: {
+                        ugen: "colin.lou.ugen.lag",
+                        rate: "audio",
+                        time: 10,
+                        source: {
+                            id: "motion",
+                            ugen: "colin.lou.ugen.dynamicValue",
+                            rate: "audio",
+                            mul: 0.75,
+                            add: 1.0
+                        }
+                    }
+                },
+                mul: 0.5
             },
         ]
     });
@@ -336,7 +356,44 @@
             }
         }
     });
+
+    colin.lou.ugen.indexArray = function (inputs, output, options) {
+        var that = flock.ugen(inputs, output, options);
+        
+        that.gen = function (numSamps) {
+            var m = that.model,
+                out = that.output,
+                inputs = that.inputs,
+                list = that.inputs.list,
+                index = that.inputs.index.output,
+                i,
+                j,
+                indexRounded;
+            
+            for (i = j = 0; i < numSamps; i++, j += m.strides.index) {
+                indexRounded = Math.round(index[j]);
+                indexRounded = indexRounded < 0 ? 0 : indexRounded > list.length ? list.length - 1 : indexRounded;
+                out[i] = list[indexRounded];
+            }
+            
+            that.mulAdd(numSamps);
+        };
+        
+        that.onInputChanged();
+        return that;
+    };
     
+    fluid.defaults("colin.lou.ugen.indexArray", {
+        rate: "control",
+        inputs: {
+            index: 0,
+            list: []
+        },
+        ugenOptions: {
+            strideInputs: ["index"],
+            noExpand: ["list"]
+        }
+    });
     
     colin.lou.ugen.pulseToFreq = function (inputs, output, options) {
         var that = flock.ugen(inputs, output, options);
