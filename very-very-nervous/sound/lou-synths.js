@@ -111,23 +111,19 @@
                     bpm: "{that}.options.bpm",
                     pulse: {
                         rate: "audio",
-                        ugen: "flock.ugen.math",
-                        source: "{that}.options.pulse",
-                        add: {
+                        ugen: "colin.lou.ugen.lag",
+                        time: 10,
+                        source: {
                             rate: "audio",
-                            ugen: "colin.lou.ugen.lag",
-                            time: 10,
+                            ugen: "colin.lou.ugen.quantize",
+                            steps: 4,
                             source: {
-                                rate: "audio",
-                                ugen: "colin.lou.ugen.quantize",
-                                steps: 4,
-                                source: {
-                                    id: "motion",
-                                    ugen: "colin.lou.ugen.dynamicValue",
-                                    mul: 3
-                                },
-                                mul: 0.5
-                            }
+                                id: "motion",
+                                ugen: "colin.lou.ugen.dynamicValue",
+                                mul: 3
+                            },
+                            mul: 0.5,
+                            add: 1.0
                         }
                     }
                 }
