@@ -96,6 +96,12 @@
         bpm: 104
     });
     
+    fluid.defaults("colin.lou.synths.halfSpeedClock", {
+        gradeNames: ["flock.synth"],
+
+        bpm: 52
+    });
+    
     fluid.defaults("colin.lou.synths.clock.motion", {
         gradeNames: ["colin.lou.synths.clock"],
 
@@ -152,7 +158,7 @@
     
     
     fluid.defaults("colin.lou.synths.pianoClock", {
-        gradeNames: ["colin.lou.synths.clock.static", "autoInit"],
+        gradeNames: ["colin.lou.synths.clock.static", "colin.lou.synths.halfSpeedClock", "autoInit"],
         
         pulse: 1.25,
         
@@ -162,7 +168,7 @@
     });
     
     fluid.defaults("colin.lou.synths.guitarClock", {
-        gradeNames: ["colin.lou.synths.clock.static", "autoInit"],
+        gradeNames: ["colin.lou.synths.clock.static", "colin.lou.synths.halfSpeedClock", "autoInit"],
         
         pulse: 1.5,
         
