@@ -11,9 +11,8 @@
         gradeNames: ["fluid.eventedComponent", "autoInit"],
         
         motionValueUGenNames: {
-            pianoClock: ["motion"],
-            guitarClock: ["motion"],            
-            drumClock: ["motion"]
+            drumClock: ["motion"],
+            drumBass: ["motion"]
         },
         
         components: {

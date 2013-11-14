@@ -6,7 +6,7 @@
         colin = fluid.registerNamespace("colin");
 
     flock.init({
-        bufferSize: 128,
+        bufferSize: 64,
         numBuses: 6,
         rates: {
             audio: 22050
@@ -93,7 +93,46 @@
     fluid.defaults("colin.lou.synths.clock", {
         gradeNames: ["flock.synth"],
 
-        bpm: 104,
+        bpm: 104
+    });
+
+    fluid.defaults("colin.lou.synths.clock.motion", {
+        gradeNames: ["colin.lou.synths.clock"],
+
+        synthDef: {
+            ugen: "flock.ugen.out",
+            expand: 1,
+            sources: {
+                ugen: "flock.ugen.impulse",
+                rate: "audio",
+                freq: {
+                    rate: "audio",
+                    ugen: "colin.lou.ugen.pulseToFreq",
+                    bpm: "{that}.options.bpm",
+                    pulse: {
+                        rate: "audio",
+                        ugen: "colin.lou.ugen.lag",
+                        time: 10,
+                        source: {
+                            rate: "audio",
+                            ugen: "colin.lou.ugen.quantize",
+                            steps: 4,
+                            source: {
+                                id: "motion",
+                                ugen: "colin.lou.ugen.dynamicValue",
+                                mul: 3
+                            },
+                            mul: 0.5,
+                            add: 1.0
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    fluid.defaults("colin.lou.synths.clock.static", {
+        gradeNames: ["colin.lou.synths.clock"],
         
         synthDef: {
             ugen: "flock.ugen.out",
@@ -102,16 +141,9 @@
                 ugen: "flock.ugen.impulse",
                 rate: "control",
                 freq: {
-                    ugen: "colin.lou.ugen.pulseToFreq",
-                    bpm: "{that}.options.bpm",
-                    pulse: {
-                        ugen: "flock.ugen.math",
-                        source: {
-                            id: "motion",
-                            ugen: "colin.lou.ugen.dynamicValue",
-                            mul: 2
-                        },
-                        add: "{that}.options.pulse"
+                    expander: {
+                        funcName: "colin.lou.synths.convertBeatsToFreq",
+                        args: ["{that}.options.pulse", "{that}.options.bpm"]
                     }
                 }
             }
@@ -120,8 +152,9 @@
     
     
     fluid.defaults("colin.lou.synths.pianoClock", {
-        gradeNames: ["colin.lou.synths.clock", "autoInit"],
+        gradeNames: ["colin.lou.synths.clock.static", "colin.lou.synths.halfSpeedClock", "autoInit"],
         
+        bpm: 52,
         pulse: 1.25,
         
         synthDef: {
@@ -130,8 +163,9 @@
     });
     
     fluid.defaults("colin.lou.synths.guitarClock", {
-        gradeNames: ["colin.lou.synths.clock", "autoInit"],
+        gradeNames: ["colin.lou.synths.clock.static", "colin.lou.synths.halfSpeedClock", "autoInit"],
         
+        bpm: 52,
         pulse: 1.5,
         
         synthDef: {
@@ -140,7 +174,7 @@
     });
     
     fluid.defaults("colin.lou.synths.drumClock", {
-        gradeNames: ["colin.lou.synths.clock", "autoInit"],
+        gradeNames: ["colin.lou.synths.clock.motion", "autoInit"],
         
         pulse: 1,
         
@@ -170,9 +204,25 @@
             
             // Bass
             {
-                ugen: "flock.ugen.sinOsc",
-                freq: 146 * (2 /3),
-                mul: 0.12
+                ugen: "flock.ugen.sin",
+                freq: {
+                    ugen: "flock.ugen.math",
+                    rate: "audio",
+                    source: (146 * (2 / 3)) / 2,
+                    mul: {
+                        ugen: "colin.lou.ugen.lag",
+                        rate: "audio",
+                        time: 10,
+                        source: {
+                            id: "motion",
+                            ugen: "colin.lou.ugen.dynamicValue",
+                            rate: "audio",
+                            mul: 0.75,
+                            add: 1.0
+                        }
+                    }
+                },
+                mul: 0.5
             },
         ]
     });
@@ -213,8 +263,64 @@
         ]
     });
 
+    colin.lou.synths.convertBeatsToFreq = function (beats, bpm) {
+        return (bpm / beats) / 60;
+    };
+    
     
     fluid.registerNamespace("colin.lou.ugen");
+
+    colin.lou.ugen.lag = function (inputs, output, options) {
+        var that = flock.ugen(inputs, output, options);
+
+        that.gen = function (numSamps) {
+            var m = that.model,
+                out = that.output,
+                inputs = that.inputs,
+                time = inputs.time.output[0],
+                source = inputs.source.output,
+                prevSamp = m.prevSamp,
+                lagCoef = m.lagCoef,
+                i,
+                j,
+                currSamp,
+                outVal;
+            
+            if (time !== m.prevTime) {
+                m.prevtime = time;
+                lagCoef = m.lagCoef = time === 0 ? 0.0 : Math.exp(flock.LOG001 / (time * m.sampleRate));
+            }
+            
+            for (i = j = 0; i < numSamps; i++, j += m.strides.source) {
+                currSamp = source[j];
+                outVal = currSamp + lagCoef * (prevSamp - currSamp);
+                out[i] = prevSamp = outVal;
+            }
+            
+            m.prevSamp = prevSamp;
+            
+            that.mulAdd(numSamps);
+        };
+        
+        that.onInputChanged();
+        return that;
+    };
+    
+    fluid.defaults("colin.lou.ugen.lag", {
+        rate: "audio",
+        inputs: {
+            source: undefined,
+            time: 0.1
+        },
+        ugenOptions: {
+            strideInputs: ["source"],
+            model: {
+                prevSamp: 0.0,
+                lagCoef: 0.0,
+                prevTime: 0.0
+            }
+        }
+    });
     
     /**
      * Represents a signal whose value is changed "behind the scenes" by some other process.
@@ -233,7 +339,7 @@
                 out[i] = m.value;
             }
             
-                that.mulAdd(numSamps);
+            that.mulAdd(numSamps);
         };
         
         that.onInputChanged();
@@ -248,7 +354,44 @@
             }
         }
     });
+
+    colin.lou.ugen.indexArray = function (inputs, output, options) {
+        var that = flock.ugen(inputs, output, options);
+        
+        that.gen = function (numSamps) {
+            var m = that.model,
+                out = that.output,
+                inputs = that.inputs,
+                list = that.inputs.list,
+                index = that.inputs.index.output,
+                i,
+                j,
+                indexRounded;
+            
+            for (i = j = 0; i < numSamps; i++, j += m.strides.index) {
+                indexRounded = Math.round(index[j]);
+                indexRounded = indexRounded < 0 ? 0 : indexRounded > list.length ? list.length - 1 : indexRounded;
+                out[i] = list[indexRounded];
+            }
+            
+            that.mulAdd(numSamps);
+        };
+        
+        that.onInputChanged();
+        return that;
+    };
     
+    fluid.defaults("colin.lou.ugen.indexArray", {
+        rate: "control",
+        inputs: {
+            index: 0,
+            list: []
+        },
+        ugenOptions: {
+            strideInputs: ["index"],
+            noExpand: ["list"]
+        }
+    });
     
     colin.lou.ugen.pulseToFreq = function (inputs, output, options) {
         var that = flock.ugen(inputs, output, options);
@@ -302,7 +445,7 @@
             var m = that.model,
                 out = that.output,
                 inputs = that.inputs,
-                source = inputs.ssource.output,
+                source = inputs.source.output,
                 steps = inputs.steps.output[0],
                 i,
                 j,
@@ -311,7 +454,7 @@
             if (steps !== m.steps) {
                 m.steps = steps;
                 m.stepValue = steps > 0 ? 1.0 / steps : 0;
-                m.halfStep = stepValue / 2;
+                m.halfStep = m.stepValue / 2;
             }
             
             for (i = j = 0; i < numSamps; i++, j += m.strides.source) {
@@ -331,10 +474,10 @@
                     }
                 }
                 
-                out[i] = quantized;
-                
-                that.mulAdd(numSamps);
+                out[i] = quantized;                
             }
+            
+            that.mulAdd(numSamps);
         };
         
         that.onInputChanged();
