@@ -237,23 +237,23 @@
                 mul: 0.25,
                 start: {
                     ugen: "colin.lou.ugen.quantize",
-                    steps: 2,
+                    steps: 4
                     source: {
                         id: "pianoStart",
                         ugen: "colin.lou.ugen.dynamicValue",
-                        mul: 2
+                        mul: 4
                     },
-                    mul: 0.5
+                    mul: 0.25
                 },
                 end: {
                     ugen: "colin.lou.ugen.quantize",
-                    steps: 2,
+                    steps: 4,
                     source: {
                         id: "pianoEnd",
                         ugen: "colin.lou.ugen.dynamicValue",
-                        mul: 2
+                        mul: 4
                     },
-                    add: 0.5
+                    add: 0.25
                 },
                 trigger: {
                     id: "pianoTrigger",
@@ -270,6 +270,26 @@
             {
                 ugen: "flock.ugen.playBuffer",
                 mul: 0.5,
+                start: {
+                    ugen: "colin.lou.ugen.quantize",
+                    steps: 5
+                    source: {
+                        id: "pianoStart",
+                        ugen: "colin.lou.ugen.dynamicValue",
+                        mul: 5
+                    },
+                    mul: 0.25
+                },
+                end: {
+                    ugen: "colin.lou.ugen.quantize",
+                    steps: 5,
+                    source: {
+                        id: "pianoEnd",
+                        ugen: "colin.lou.ugen.dynamicValue",
+                        mul: 5
+                    },
+                    add: 0.2
+                },
                 trigger: {
                     id: "guitarTrigger",
                     ugen: "flock.ugen.in",
