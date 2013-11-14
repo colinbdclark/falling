@@ -237,13 +237,12 @@
                 mul: 0.25,
                 start: {
                     ugen: "colin.lou.ugen.quantize",
-                    steps: 4
+                    steps: 4,
                     source: {
                         id: "pianoStart",
                         ugen: "colin.lou.ugen.dynamicValue",
-                        mul: 4
-                    },
-                    mul: 0.25
+                        mul: 2
+                    }
                 },
                 end: {
                     ugen: "colin.lou.ugen.quantize",
@@ -251,9 +250,9 @@
                     source: {
                         id: "pianoEnd",
                         ugen: "colin.lou.ugen.dynamicValue",
-                        mul: 4
+                        mul: 2
                     },
-                    add: 0.25
+                    add: 1 / 4
                 },
                 trigger: {
                     id: "pianoTrigger",
@@ -272,23 +271,22 @@
                 mul: 0.5,
                 start: {
                     ugen: "colin.lou.ugen.quantize",
-                    steps: 5
+                    steps: 5,
                     source: {
-                        id: "pianoStart",
+                        id: "guitarStart",
                         ugen: "colin.lou.ugen.dynamicValue",
-                        mul: 5
-                    },
-                    mul: 0.25
+                        mul: 2
+                    }
                 },
                 end: {
                     ugen: "colin.lou.ugen.quantize",
                     steps: 5,
                     source: {
-                        id: "pianoEnd",
+                        id: "guitarEnd",
                         ugen: "colin.lou.ugen.dynamicValue",
-                        mul: 5
+                        mul: 2
                     },
-                    add: 0.2
+                    add: 1 / 5
                 },
                 trigger: {
                     id: "guitarTrigger",
@@ -297,7 +295,7 @@
                 },
                 buffer: {
                     id: "csharp-guitar",
-                    url: "../lou/audio/22050/csharp-guitar-22050.wav"
+                    url: "../lou/audio/22050/guitar-combined-22050.wav"
                 }
             }
         ]

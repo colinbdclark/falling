@@ -16,7 +16,8 @@
                 pianoGuitar: ["pianoStart", "pianoEnd"]
             },
             right: {
-                drumBass: ["motion"]
+                drumBass: ["motion"],
+                pianoGuitar: ["guitarStart", "guitarEnd"]
             }
         },
         
