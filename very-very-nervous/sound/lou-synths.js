@@ -235,6 +235,26 @@
             {
                 ugen: "flock.ugen.playBuffer",
                 mul: 0.25,
+                start: {
+                    ugen: "colin.lou.ugen.quantize",
+                    steps: 2,
+                    source: {
+                        id: "pianoStart",
+                        ugen: "colin.lou.ugen.dynamicValue",
+                        mul: 2
+                    },
+                    mul: 0.5
+                },
+                end: {
+                    ugen: "colin.lou.ugen.quantize",
+                    steps: 2,
+                    source: {
+                        id: "pianoEnd",
+                        ugen: "colin.lou.ugen.dynamicValue",
+                        mul: 2
+                    },
+                    add: 0.5
+                },
                 trigger: {
                     id: "pianoTrigger",
                     ugen: "flock.ugen.in",
@@ -242,7 +262,7 @@
                 },
                 buffer: {
                     id: "dsharp-piano",
-                    url: "../lou/audio/22050/dsharp-piano-22050.wav"
+                    url: "../lou/audio/22050/piano-combined-22050.wav"
                 }
             },
             
