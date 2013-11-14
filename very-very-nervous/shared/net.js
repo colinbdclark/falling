@@ -32,7 +32,7 @@
     fluid.defaults("colin.bufferedMessageSender", {
         gradeNames: ["fluid.littleComponent", "autoInit"],
         
-        maxMessageLength: 4,
+        maxMessageLength: 8,
         
         members: {
             msgBuffer: {
@@ -47,6 +47,11 @@
             sendFloat: {
                 funcName: "colin.bufferedMessageSender.sendFloat",
                 args: ["{arguments}.0", "{that}.msgBuffer", "{that}"]
+            },
+            
+            sendFloats: {
+                funcName: "colin.bufferedMessageSender.sendFloats",
+                args: ["{arguments}.0", "{that}.msgBuffer", "{that}"]
             }
         }
     });
@@ -58,6 +63,14 @@
     colin.bufferedMessageSender.sendFloat = function (value, buffer, that) {
         buffer.writeFloatLE(value, 0);
         console.log("Sending value: ", value);
+        that.send(buffer);
+    };
+    
+    colin.bufferedMessageSender.sendFloats = function (values, buffer, that) {
+        for (var i = 0; i < values.length; i++) {
+            buffer.writeFloatLE(values[i], i * 4);
+        }
+        console.log("Sending values: ", values);
         that.send(buffer);
     };
     

@@ -73,6 +73,8 @@
     };
 
     colin.veryVery.snapshotter.cmd.bindMethods = function (that) {
+        that.halfPixels = that.numPixels / 2;
+        
         that.snap = function () {
             var filename = that.options.imageDef.filename;
         
@@ -93,8 +95,10 @@
             
                     that.laterImg = FreeImage.loadFromMemory(fileData);
                     if (that.earlierImg && that.laterImg) {
-                        var result = that.processor.process(that.earlierImg.buffer, that.laterImg.buffer);
-                        that.outputter.output(result / that.numPixels);
+                        var result = that.processor.processStereo(that.earlierImg.buffer, that.laterImg.buffer);
+                        result[0] = result[0] / that.halfPixels;
+                        result[1] = result[1] / that.halfPixels;
+                        that.outputter.output(result);
                     }
                 });
             });
@@ -110,7 +114,7 @@
             client: {
                 type: "colin.udpClient",
                 options: {
-                    maxMessageLength: 4,
+                    maxMessageLength: 8,
                     host: "192.168.0.22",
                     port: 65534
                 }
@@ -129,7 +133,7 @@
 
     colin.veryVery.netOutputter.bindMethods = function (that) {
         that.output = function (value) {
-            that.client.sendFloat(value);
+            that.client.sendFloats(value);
         };
     };
 

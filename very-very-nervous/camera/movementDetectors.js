@@ -25,6 +25,7 @@
     });
 
     colin.veryVery.movementDetector.grey.bindMethods = function (that) {
+
         that.process = function (earlier, later) {
             var threshold = that.options.threshold,
                 whitePixels = 0,
@@ -39,6 +40,45 @@
 
             return whitePixels;
         };
+        
+        // TODO: Horrendous cut and pastage.
+        that.processStereo = function (earlier, later) {
+            var threshold = that.options.threshold,
+                leftWhitePixels = 0,
+                rightWhitePixels = 0,
+                // TODO: Hardcoded.
+                w = 640,
+                halfWidth = 320,
+                h = 480,
+                // ---------------
+                leftStart,
+                rightStart,
+                rightEnd,
+                lum;
+
+            for (var rowIdx = 0; rowIdx < h; rowIdx++) {
+                leftStart = rowIdx * w;
+                rightStart = leftStart + halfWidth;
+                rightEnd = rightStart + halfWidth;
+                
+                for (var leftIdx = leftStart; leftIdx < rightStart; leftIdx++) {
+                    lum = earlier.readUInt8(leftIdx) - later.readUInt8(leftIdx);
+                    if (lum >= threshold) {
+                        leftWhitePixels++;
+                    }
+                }
+                
+                for (var rightIdx = rightStart; rightIdx < rightEnd; rightIdx++) {
+                    lum = earlier.readUInt8(rightIdx) - later.readUInt8(rightIdx);
+                    if (lum >= threshold) {
+                        rightWhitePixels++;
+                    }
+                    
+                }
+            }
+            
+            return [leftWhitePixels, rightWhitePixels];
+        }
     };
 
 
