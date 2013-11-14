@@ -237,7 +237,7 @@
                 mul: 0.25,
                 start: {
                     ugen: "colin.lou.ugen.quantize",
-                    steps: 4,
+                    steps: 2,
                     source: {
                         id: "pianoStart",
                         ugen: "colin.lou.ugen.dynamicValue",
@@ -246,13 +246,20 @@
                 },
                 end: {
                     ugen: "colin.lou.ugen.quantize",
-                    steps: 4,
+                    steps: 2,
                     source: {
-                        id: "pianoEnd",
-                        ugen: "colin.lou.ugen.dynamicValue",
-                        mul: 2
+                        ugen: "flock.ugen.latch",
+                        trig: {
+                            ugen: "flock.ugen.in",
+                            bus: 2
+                        },
+                        source: {
+                            id: "pianoEnd",
+                            ugen: "colin.lou.ugen.dynamicValue",
+                            mul: 2
+                        }
                     },
-                    add: 1 / 4
+                    add: 0.5
                 },
                 trigger: {
                     id: "pianoTrigger",
@@ -271,7 +278,7 @@
                 mul: 0.5,
                 start: {
                     ugen: "colin.lou.ugen.quantize",
-                    steps: 5,
+                    steps: 2,
                     source: {
                         id: "guitarStart",
                         ugen: "colin.lou.ugen.dynamicValue",
@@ -280,13 +287,20 @@
                 },
                 end: {
                     ugen: "colin.lou.ugen.quantize",
-                    steps: 5,
+                    steps: 2,
                     source: {
-                        id: "guitarEnd",
-                        ugen: "colin.lou.ugen.dynamicValue",
-                        mul: 2
+                        ugen: "flock.ugen.latch",
+                        trig: {
+                            ugen: "flock.ugen.in",
+                            bus: 3
+                        },
+                        source: {
+                            id: "guitarEnd",
+                            ugen: "colin.lou.ugen.dynamicValue",
+                            mul: 2
+                        }
                     },
-                    add: 1 / 5
+                    add: 0.5
                 },
                 trigger: {
                     id: "guitarTrigger",
