@@ -6,11 +6,7 @@
         colin = fluid.registerNamespace("colin");
 
     flock.init({
-        bufferSize: 64,
         numBuses: 6,
-        rates: {
-            audio: 22050
-        }
     });
     
     fluid.registerNamespace("colin.lou");

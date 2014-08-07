@@ -27,7 +27,8 @@
             leftClient: {
                 type: "colin.conductor.client",
                 options: {
-                    host: "192.168.0.11",
+                    host: "127.0.0.1",
+                    port: 65533,
                     listeners: {
                         onError: "{conductor}.events.onError"
                     }
@@ -37,7 +38,8 @@
             rightClient: {
                 type: "colin.conductor.client",
                 options: {
-                    host: "192.168.0.22",
+                    host: "127.0.0.1",
+                    port: 65531,
                     listeners: {
                         onError: "{conductor}.events.onError"
                     }

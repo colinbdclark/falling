@@ -5,7 +5,7 @@
     var fluid = require("infusion"),
         colin = fluid.registerNamespace("colin"),
         fs = require("fs"),
-        exec = require("child_process").exec,
+        proc = require("child_process"),
         FreeImage = require("node-image").Image;
 
     fluid.defaults("colin.veryVery.snapshotter.cmd", {
@@ -14,16 +14,21 @@
         imageDef: {
             width: 640,
             height: 480,
+            device: "/dev/video0",
             filename: "images/very-very-snapshot.pgm"
         },
     
-        cmd: "streamer -q -s %widthx%height -f pgm -o %filename",
-    
+        //cmd: "/usr/bin/streamer",
+        //argString: "-c %device -q -s %widthx%height -f pgm -o %filename",
+
+        cmd: "/usr/bin/fswebcam",
+        argString: "-q -d %device -r %widthx%height --greyscale %filename",
+
         members: {
-            execCmd: {
+            execArgs: {
                 expander: {
                     funcName: "fluid.stringTemplate",
-                    args: ["{that}.options.cmd", "{that}.options.imageDef"]
+                    args: ["{that}.options.argString", "{that}.options.imageDef"]
                 }
             },
         
@@ -74,12 +79,14 @@
 
     colin.veryVery.snapshotter.cmd.bindMethods = function (that) {
         that.halfPixels = that.numPixels / 2;
-        
+        that.args = that.execArgs.split(" ");
+
         that.snap = function () {
             var filename = that.options.imageDef.filename;
-        
-            exec(that.execCmd, function (error) {
-                if (error) {
+            var capture = proc.spawn(that.options.cmd, that.args);
+ 
+            capture.on("close", function (code) {
+                if (code != 0) {
                     console.log("Error capturing snapshot.", error);
                 }
         
@@ -91,7 +98,7 @@
                     that.earlierImg = that.laterImg;
             
                     // Schedule the next snapshot while we're reading the current image.
-                    setTimeout(that.snap, 500);
+                    setTimeout(that.snap, 200);
             
                     that.laterImg = FreeImage.loadFromMemory(fileData);
                     if (that.earlierImg && that.laterImg) {
@@ -115,7 +122,7 @@
                 type: "colin.udpClient",
                 options: {
                     maxMessageLength: 8,
-                    host: "192.168.0.22",
+                    host: "127.0.0.1",
                     port: 65534
                 }
             }
