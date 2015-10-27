@@ -12,6 +12,18 @@
         components: {
             instrument: {
                 type: "colin.lou.instrument.right"
+            },
+
+            motionSource: {
+                options: {
+                    port: 65532
+                }
+            },
+
+            conductorSource: {
+                options: {
+                    port: 65531
+                }
             }
         }
     });
