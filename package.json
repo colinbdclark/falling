@@ -1,0 +1,27 @@
+{
+    "name": "falling",
+    "productName": "Falling",
+    "description": "Falling, a sound installation by Colin Clark",
+    "main": "main.js",
+    "version": "2.0.0",
+    "author": "Colin Clark",
+    "license": "MIT",
+    "repository": "git://github.com/colinbdclark/falling.git",
+    "bugs": "http://github.com/colinbdclark/falling/issues",
+    "homepage": "http://github.com/colinbdclark/falling",
+    "readmeFilename": "README.md",
+    "dependencies": {
+        "infusion": "2.0.0-dev.20151024T031903Z.3da18aa",
+        "dedupe-infusion": "1.0.0",
+        "jquery": "2.1.4",
+        "bergson": "0.11.0",
+        "samfisher": "1.3.0",
+        "flocking": "colinbdclark/flocking#core-refactoring",
+        "electron-prebuilt": "0.34.0",
+        "infusion-electron": "colinbdclark/infusion-electron#ipc-relay"
+    },
+    "scripts": {
+        "dedupe-infusion": "node -e \"require('dedupe-infusion')();\"",
+        "start": "electron main.js"
+    }
+}
