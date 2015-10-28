@@ -14,14 +14,13 @@
         "infusion": "2.0.0-dev.20151024T031903Z.3da18aa",
         "dedupe-infusion": "1.0.0",
         "jquery": "2.1.4",
-        "bergson": "0.11.0",
         "samfisher": "1.3.0",
         "flocking": "colinbdclark/flocking#core-refactoring",
         "electron-prebuilt": "0.34.0",
-        "infusion-electron": "colinbdclark/infusion-electron#ipc-relay"
+        "windvane": "colinbdclark/windvane"
     },
     "scripts": {
         "dedupe-infusion": "node -e \"require('dedupe-infusion')();\"",
-        "start": "electron main.js"
+        "start": "electron node_modules/windvane/main.js"
     }
 }

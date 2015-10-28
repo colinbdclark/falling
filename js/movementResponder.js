@@ -6,10 +6,7 @@
         colin = fluid.registerNamespace("colin");
 
     flock.init({
-        bufferSize: 128,
-        rates: {
-            audio: 22050
-        }
+        bufferSize: 4096
     });
 
     fluid.defaults("colin.veryVery.movementResponder", {
@@ -89,7 +86,7 @@
                     listeners: {
                         onMessage: {
                             funcName: "colin.veryVery.motionSource.net.scaleValue",
-                            args: ["{synth}", "{arguments}.0", "{arguments}.1"]
+                            args: ["{synth}", "{arguments}.0"]
                         }
                     }
                 }
@@ -118,7 +115,7 @@
     };
 
     var lastMove = Date.now();
-    colin.veryVery.motionSource.net.scaleValue = function (synth, rawMotionMessage, remoteInfo) {
+    colin.veryVery.motionSource.net.scaleValue = function (synth, rawMotionMessage) {
         var value = rawMotionMessage.readFloatLE(0),
             scaled = value < 0.00005 ? 1.0 : 1.0 - (value * 5),
             trigger = scaled > 0.5 ? 1.0 : 0.0,

@@ -63,8 +63,7 @@
         };
 
         that.onInputChanged = function (inputName) {
-            var m = that.model,
-                inputs = that.inputs;
+            var m = that.model;
 
             if (m.bufDef !== that.inputs.buffer || inputName === "buffer") {
                 flock.buffer.resolveBuffer(that);
