@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Falling Motion Tracker</title>
+
+        <script>
+            window.$ = window.jQuery = require("jquery");
+        </script>
+        <script src="../../node_modules/samfisher/dist/samfisher-all.js"></script>
+        <script src="../../node_modules/windvane/node_modules/infusion-electron/src/ipc.js"></script>
+        <script src="../../node_modules/windvane/src/browser/motion-tracker.js"></script>
+    </head>
+    <body>
+        <script>
+            window.motionSource = windvane.quadraphonicMotionSource();
+        </script>
+    </body>
+</html>

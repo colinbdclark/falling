@@ -1,0 +1,4 @@
+{
+    "trackerWindowURL": "%appRoot/html/tracker/two-camera-motion-tracker.html",
+    "audioWindowURL": "%appRoot/html/audio/two-camera-all-voices.html"
+}
