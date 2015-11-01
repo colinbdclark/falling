@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Falling Quadraphonic Motion Tracker</title>
+        <title>Falling Single Camera Motion Tracker</title>
 
         <script>
             window.$ = window.jQuery = require("jquery");
@@ -13,7 +13,7 @@
     </head>
     <body>
         <script>
-            window.motionSource = windvane.quadraphonicMotionSource({
+            window.motionSource = windvane.stereoMotionSource({
                 distributeOptions: {
                     target: "{/ fisher.frameScheduler}.options",
                     record: {

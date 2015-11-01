@@ -28,7 +28,7 @@
             },
 
             motionTarget: {
-                type: "windvane.stereoToQuadMotionTarget",
+                type: "windvane.quadraphonicMotionTarget",
                 options: {
                     components: {
                         front: {
@@ -49,55 +49,16 @@
         }
     });
 
-    // fluid.defaults("colin.falling.synth", {
-    //     gradeNames: "flock.modelSynth",
-    //
-    //     // TODO: Factor into separate synth,
-    //     // reusing a base grade definition to avoid all this
-    //     // redundancy.
-    //     synthDef: [
-    //         {
-    //             id: "guitarPlayer",
-    //             ugen: "colin.ugen.movementPlayer",
-    //             buffer: "guitar",
-    //             loop: 1,
-    //             speed: 0.0,
-    //             reset: 0.1,
-    //             trigger: 0.0
-    //         },
-    //
-    //         {
-    //             id: "pianoPlayer",
-    //             ugen: "colin.ugen.movementPlayer",
-    //             buffer: "piano",
-    //             loop: 1,
-    //             speed: 0.0,
-    //             reset: 0.1,
-    //             trigger: 0.0
-    //         },
-    //
-    //         {
-    //             id: "ukePlayer",
-    //             ugen: "colin.ugen.movementPlayer",
-    //             buffer: "uke",
-    //             loop: 1,
-    //             speed: 0.0,
-    //             reset: 0.1,
-    //             trigger: 0.0
-    //         },
-    //
-    //         {
-    //             id: "voxPlayer",
-    //             ugen: "colin.ugen.movementPlayer",
-    //             buffer: "vox",
-    //             loop: 1,
-    //             speed: 0.0,
-    //             reset: 0.1,
-    //             trigger: 0.0
-    //         }
-    //     ]
-    // });
-    //
+    fluid.defaults("colin.falling.audio.singleCamera", {
+        gradeNames: "colin.falling.audio",
+
+        components: {
+            motionTarget: {
+                type: "windvane.stereoToQuadMotionTarget"
+            }
+        }
+    });
+
     var lastMove = Date.now();
     colin.falling.scaleMotionValue = function (band, value) {
         var scaled = value < 0.00005 ? 1.0 : 1.0 - value, //(value * 5),
