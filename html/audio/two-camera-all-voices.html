@@ -10,18 +10,14 @@
         <script src="../../node_modules/flocking/dist/flocking-no-jquery.js"></script>
         <script src="../../node_modules/windvane/node_modules/infusion-electron/src/ipc.js"></script>
         <script src="../../node_modules/windvane/src/browser/motion-responder.js"></script>
+        <script src="../../js/buffer-loader.js"></script>
+        <script src="../../js/ugens.js"></script>
+        <script src="../../js/synths.js"></script>
+        <script src="../../js/audio-players.js"></script>
     </head>
     <body>
         <script>
-            window.motionTarget = windvane.quadraphonicMotionTarget({
-                modelListeners: {
-                    "": {
-                        "this": "console",
-                        method: "log",
-                        args: ["{change}.value"]
-                    }
-                }
-            });
+            window.audioPlayer = colin.falling.audio();
         </script>
     </body>
 </html>

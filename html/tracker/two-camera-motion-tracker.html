@@ -13,7 +13,14 @@
     </head>
     <body>
         <script>
-            window.motionSource = windvane.quadraphonicMotionSource();
+            window.motionSource = windvane.quadraphonicMotionSource({
+                distributeOptions: {
+                    target: "{/ fisher.frameScheduler}.options",
+                    record: {
+                        freq: 2
+                    }
+                }
+            });
         </script>
     </body>
 </html>

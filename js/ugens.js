@@ -1,9 +1,7 @@
+/*global fluid, colin, flock*/
+
 (function () {
     "use strict";
-
-    var fluid = require("infusion"),
-        flock = fluid.require("flocking"),
-        colin = fluid.registerNamespace("colin");
 
     fluid.registerNamespace("colin.ugen");
 
@@ -21,20 +19,11 @@
                 reset = that.inputs.reset.output[0],
                 chan = that.inputs.channel.output[0],
                 speedInc = that.inputs.speed.output[0],
-                source = that.buffer,
+                source = that.buffer.data.channels[chan],
                 bufIdx = m.idx,
                 bufLen = source.length,
                 loop = that.inputs.loop.output[0],
-                buffers = that.options.audioSettings.buffers,
                 i;
-
-            // If the channel has changed, update the buffer we're reading from.
-            if (m.channel !== chan) {
-                m.channel = chan;
-                if (buffers[m.name]) {
-                    that.buffer = source = buffers[m.name][chan];
-                }
-            }
 
             if (trigger > 0.0 && m.prevTrig <= 0.0) {
                 bufIdx = (that.buffer.length * reset) | 0;
@@ -63,16 +52,17 @@
         };
 
         that.onInputChanged = function (inputName) {
-            var m = that.model;
-
-            if (m.bufDef !== that.inputs.buffer || inputName === "buffer") {
-                flock.buffer.resolveBuffer(that);
-            }
-
+            that.onBufferInputChanged(inputName);
             flock.onMulAddInputChanged(that);
         };
 
-        that.onInputChanged();
+        that.init = function () {
+            flock.ugen.buffer(that);
+            that.initBuffer();
+            that.onInputChanged();
+        };
+
+        that.init();
         return that;
     };
 
