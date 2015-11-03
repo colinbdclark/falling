@@ -61,7 +61,7 @@
 
     var lastMove = Date.now();
     colin.falling.scaleMotionValue = function (band, value) {
-        var scaled = value < 0.00005 ? 1.0 : 1.0 - value, //(value * 5),
+        var scaled = value < 0.00005 ? 1.0 : 1.0 - (value * 5),
             trigger = scaled > 0.5 ? 1.0 : 0.0,
             isFairlyStill = value < 0.0005;
 
@@ -72,14 +72,13 @@
         } else {
             if (Date.now() - lastMove > 15000) {
                 // Sync right with left.
-                // var right = synth.get("guitarPlayer"),
-                //     left = synth.get("pianoPlayer");
-                // right.model.idx = left.model.idx;
+                // TODO: This implementation is garbage, and produces it.
+                var synths = band.getSynths(),
+                    lastSynth = synths.pop(),
+                    idx = lastSynth.get("player").model.idx;
 
-                // TODO: Think this through more clearly.
-                var synths = band.getSynths();
-                for (var i = synths.length - 1; i < 1; i--) {
-                    synths[i - 1].set("player.model.idx", synths[i].get("player.model.idx"));
+                for (var i = 0; i < synths.length; i++) {
+                    synths[i].get("player").model.idx = idx;
                 }
 
                 lastMove = Date.now();
@@ -90,8 +89,7 @@
         band.set({
             "player.speed": scaled,
             "player.trigger": trigger,
-            "player.start": isFairlyStill ? 0 : Math.random(),
+            "player.start": isFairlyStill ? 0 : Math.random()
         });
     };
-
 }());
